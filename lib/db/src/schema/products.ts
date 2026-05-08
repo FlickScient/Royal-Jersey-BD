@@ -4,11 +4,23 @@ import { z } from "zod/v4";
 
 export const editionEnum = pgEnum("edition", ["player", "fan", "kid", "premium"]);
 
+export const leaguesTable = pgTable("leagues", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  country: text("country"),
+  logoUrl: text("logo_url"),
+  isInternational: boolean("is_international").notNull().default(false),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const categoriesTable = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   imageUrl: text("image_url"),
+  sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -21,6 +33,8 @@ export const productsTable = pgTable("products", {
   imageUrl: text("image_url").notNull(),
   images: text("images").array(),
   categoryId: integer("category_id").notNull().references(() => categoriesTable.id),
+  leagueId: integer("league_id").references(() => leaguesTable.id),
+  teamName: text("team_name"),
   edition: editionEnum("edition").notNull().default("fan"),
   fabricType: text("fabric_type"),
   sizes: text("sizes").array(),
@@ -77,7 +91,9 @@ export const ordersTable = pgTable("orders", {
 export const insertCategorySchema = createInsertSchema(categoriesTable).omit({ id: true, createdAt: true });
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, createdAt: true });
 export const insertOfferSchema = createInsertSchema(offersTable).omit({ id: true, createdAt: true });
+export const insertLeagueSchema = createInsertSchema(leaguesTable).omit({ id: true, createdAt: true });
 
+export type League = typeof leaguesTable.$inferSelect;
 export type Category = typeof categoriesTable.$inferSelect;
 export type Product = typeof productsTable.$inferSelect;
 export type Offer = typeof offersTable.$inferSelect;
@@ -86,3 +102,4 @@ export type WishlistItem = typeof wishlistItemsTable.$inferSelect;
 export type Order = typeof ordersTable.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
+export type InsertLeague = z.infer<typeof insertLeagueSchema>;

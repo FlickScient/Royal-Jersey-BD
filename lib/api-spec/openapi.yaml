@@ -8,19 +8,14 @@ servers:
     description: Base API path
 tags:
   - name: health
-    description: Health operations
   - name: products
-    description: Product operations
   - name: categories
-    description: Category operations
+  - name: leagues
   - name: cart
-    description: Shopping cart operations
   - name: wishlist
-    description: Wishlist operations
   - name: orders
-    description: Order operations
   - name: offers
-    description: Offers and promotions
+  - name: admin
 
 paths:
   /healthz:
@@ -63,6 +58,27 @@ paths:
           required: false
           schema:
             type: boolean
+        - name: leagueId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [price_asc, price_desc, newest, popular]
+        - name: minPrice
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          required: false
+          schema:
+            type: number
       responses:
         "200":
           description: List of products
@@ -138,6 +154,21 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Category"
+
+  /leagues:
+    get:
+      operationId: listLeagues
+      tags: [leagues]
+      summary: List all football leagues
+      responses:
+        "200":
+          description: List of leagues
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/League"
 
   /cart:
     get:
@@ -279,6 +310,229 @@ paths:
               schema:
                 $ref: "#/components/schemas/Order"
 
+  # Admin endpoints
+  /admin/products:
+    get:
+      operationId: adminListProducts
+      tags: [admin]
+      summary: Admin - list all products
+      responses:
+        "200":
+          description: All products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: adminCreateProduct
+      tags: [admin]
+      summary: Admin - create product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminProductBody"
+      responses:
+        "201":
+          description: Created product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /admin/products/{id}:
+    put:
+      operationId: adminUpdateProduct
+      tags: [admin]
+      summary: Admin - update product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminProductBody"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: adminDeleteProduct
+      tags: [admin]
+      summary: Admin - delete product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+
+  /admin/offers:
+    get:
+      operationId: adminListOffers
+      tags: [admin]
+      summary: Admin - list offers
+      responses:
+        "200":
+          description: All offers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Offer"
+    post:
+      operationId: adminCreateOffer
+      tags: [admin]
+      summary: Admin - create offer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminOfferBody"
+      responses:
+        "201":
+          description: Created offer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+
+  /admin/offers/{id}:
+    put:
+      operationId: adminUpdateOffer
+      tags: [admin]
+      summary: Admin - update offer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminOfferBody"
+      responses:
+        "200":
+          description: Updated offer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+    delete:
+      operationId: adminDeleteOffer
+      tags: [admin]
+      summary: Admin - delete offer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+
+  /admin/categories:
+    post:
+      operationId: adminCreateCategory
+      tags: [admin]
+      summary: Admin - create category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCategoryBody"
+      responses:
+        "201":
+          description: Created category
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /admin/categories/{id}:
+    put:
+      operationId: adminUpdateCategory
+      tags: [admin]
+      summary: Admin - update category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCategoryBody"
+      responses:
+        "200":
+          description: Updated category
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /admin/orders:
+    get:
+      operationId: adminListOrders
+      tags: [admin]
+      summary: Admin - list all orders
+      responses:
+        "200":
+          description: All orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminOrder"
+
+  /admin/me:
+    get:
+      operationId: adminGetMe
+      tags: [admin]
+      summary: Check if current user is admin
+      responses:
+        "200":
+          description: Admin check result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminMe"
+        "403":
+          description: Not admin
+
 components:
   schemas:
     HealthStatus:
@@ -287,6 +541,25 @@ components:
         status:
           type: string
       required: [status]
+
+    League:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        country:
+          type: string
+        logoUrl:
+          type: string
+        isInternational:
+          type: boolean
+        productCount:
+          type: integer
+      required: [id, name, slug, isInternational]
 
     Product:
       type: object
@@ -332,6 +605,14 @@ components:
           type: number
         reviewCount:
           type: integer
+        leagueId:
+          type: integer
+        leagueName:
+          type: string
+        leagueLogoUrl:
+          type: string
+        teamName:
+          type: string
         createdAt:
           type: string
       required: [id, name, price, imageUrl, categoryId, categoryName, edition, inStock]
@@ -449,3 +730,114 @@ components:
         createdAt:
           type: string
       required: [id, orderNumber, status, total]
+
+    AdminOrder:
+      type: object
+      properties:
+        id:
+          type: integer
+        orderNumber:
+          type: string
+        status:
+          type: string
+        total:
+          type: number
+        paymentMethod:
+          type: string
+        customerName:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+      required: [id, orderNumber, status, total, customerName, phone, address]
+
+    AdminProductBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        originalPrice:
+          type: number
+        imageUrl:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        categoryId:
+          type: integer
+        edition:
+          type: string
+          enum: [player, fan, kid, premium]
+        fabricType:
+          type: string
+        sizes:
+          type: array
+          items:
+            type: string
+        inStock:
+          type: boolean
+        isFeatured:
+          type: boolean
+        isNew:
+          type: boolean
+        discountPercent:
+          type: integer
+        leagueId:
+          type: integer
+        teamName:
+          type: string
+      required: [name, price, imageUrl, categoryId, edition, inStock]
+
+    AdminOfferBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        discountPercent:
+          type: integer
+        imageUrl:
+          type: string
+        validUntil:
+          type: string
+        code:
+          type: string
+      required: [title, description]
+
+    AdminCategoryBody:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        imageUrl:
+          type: string
+      required: [name, slug]
+
+    DeleteResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required: [success]
+
+    AdminMe:
+      type: object
+      properties:
+        isAdmin:
+          type: boolean
+        userId:
+          type: string
+      required: [isAdmin]

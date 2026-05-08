@@ -22,6 +22,10 @@ export const ListProductsQueryParams = zod.object({
   edition: zod.enum(["player", "fan", "kid", "premium"]).optional(),
   search: zod.coerce.string().optional(),
   inStock: zod.coerce.boolean().optional(),
+  leagueId: zod.coerce.number().optional(),
+  sort: zod.enum(["price_asc", "price_desc", "newest", "popular"]).optional(),
+  minPrice: zod.coerce.number().optional(),
+  maxPrice: zod.coerce.number().optional(),
 });
 
 export const ListProductsResponseItem = zod.object({

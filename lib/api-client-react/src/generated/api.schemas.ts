@@ -9,6 +9,16 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface League {
+  id: number;
+  name: string;
+  slug: string;
+  country?: string;
+  logoUrl?: string;
+  isInternational: boolean;
+  productCount?: number;
+}
+
 export type ProductEdition =
   (typeof ProductEdition)[keyof typeof ProductEdition];
 
@@ -38,6 +48,10 @@ export interface Product {
   discountPercent?: number;
   rating?: number;
   reviewCount?: number;
+  leagueId?: number;
+  leagueName?: string;
+  leagueLogoUrl?: string;
+  teamName?: string;
   createdAt?: string;
 }
 
@@ -110,11 +124,81 @@ export interface Order {
   createdAt?: string;
 }
 
+export interface AdminOrder {
+  id: number;
+  orderNumber: string;
+  status: string;
+  total: number;
+  paymentMethod?: string;
+  customerName: string;
+  phone: string;
+  address: string;
+  notes?: string;
+  createdAt?: string;
+}
+
+export type AdminProductBodyEdition =
+  (typeof AdminProductBodyEdition)[keyof typeof AdminProductBodyEdition];
+
+export const AdminProductBodyEdition = {
+  player: "player",
+  fan: "fan",
+  kid: "kid",
+  premium: "premium",
+} as const;
+
+export interface AdminProductBody {
+  name: string;
+  description?: string;
+  price: number;
+  originalPrice?: number;
+  imageUrl: string;
+  images?: string[];
+  categoryId: number;
+  edition: AdminProductBodyEdition;
+  fabricType?: string;
+  sizes?: string[];
+  inStock: boolean;
+  isFeatured?: boolean;
+  isNew?: boolean;
+  discountPercent?: number;
+  leagueId?: number;
+  teamName?: string;
+}
+
+export interface AdminOfferBody {
+  title: string;
+  description: string;
+  discountPercent?: number;
+  imageUrl?: string;
+  validUntil?: string;
+  code?: string;
+}
+
+export interface AdminCategoryBody {
+  name: string;
+  slug: string;
+  imageUrl?: string;
+}
+
+export interface DeleteResult {
+  success: boolean;
+}
+
+export interface AdminMe {
+  isAdmin: boolean;
+  userId?: string;
+}
+
 export type ListProductsParams = {
   categoryId?: number;
   edition?: ListProductsEdition;
   search?: string;
   inStock?: boolean;
+  leagueId?: number;
+  sort?: ListProductsSort;
+  minPrice?: number;
+  maxPrice?: number;
 };
 
 export type ListProductsEdition =
@@ -125,4 +209,14 @@ export const ListProductsEdition = {
   fan: "fan",
   kid: "kid",
   premium: "premium",
+} as const;
+
+export type ListProductsSort =
+  (typeof ListProductsSort)[keyof typeof ListProductsSort];
+
+export const ListProductsSort = {
+  price_asc: "price_asc",
+  price_desc: "price_desc",
+  newest: "newest",
+  popular: "popular",
 } as const;

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
+  <rect width="200" height="60" rx="8" fill="#0a0a0a"/>
+  <path d="M12 15 L28 15 L28 22 L20 22 L20 45 L12 45 Z" fill="#c9a84c"/>
+  <path d="M30 15 L46 15 C50 15 54 18 54 24 C54 28 52 31 48 32 L54 45 L46 45 L41 33 L38 33 L38 45 L30 45 Z M38 27 L44 27 C46 27 46 25 46 24 C46 23 46 21 44 21 L38 21 Z" fill="#c9a84c"/>
+  <text x="62" y="36" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#fafaf8" letter-spacing="1">ROYAL</text>
+  <text x="62" y="50" font-family="Georgia, serif" font-size="10" font-weight="400" fill="#c9a84c" letter-spacing="3">JERSEY BD</text>
+</svg>

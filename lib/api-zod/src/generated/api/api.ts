@@ -22,6 +22,10 @@ export const ListProductsQueryParams = zod.object({
   edition: zod.enum(["player", "fan", "kid", "premium"]).optional(),
   search: zod.coerce.string().optional(),
   inStock: zod.coerce.boolean().optional(),
+  leagueId: zod.coerce.number().optional(),
+  sort: zod.enum(["price_asc", "price_desc", "newest", "popular"]).optional(),
+  minPrice: zod.coerce.number().optional(),
+  maxPrice: zod.coerce.number().optional(),
 });
 
 export const ListProductsResponseItem = zod.object({
@@ -43,6 +47,10 @@ export const ListProductsResponseItem = zod.object({
   discountPercent: zod.number().optional(),
   rating: zod.number().optional(),
   reviewCount: zod.number().optional(),
+  leagueId: zod.number().optional(),
+  leagueName: zod.string().optional(),
+  leagueLogoUrl: zod.string().optional(),
+  teamName: zod.string().optional(),
   createdAt: zod.string().optional(),
 });
 export const ListProductsResponse = zod.array(ListProductsResponseItem);
@@ -69,6 +77,10 @@ export const GetFeaturedProductsResponseItem = zod.object({
   discountPercent: zod.number().optional(),
   rating: zod.number().optional(),
   reviewCount: zod.number().optional(),
+  leagueId: zod.number().optional(),
+  leagueName: zod.string().optional(),
+  leagueLogoUrl: zod.string().optional(),
+  teamName: zod.string().optional(),
   createdAt: zod.string().optional(),
 });
 export const GetFeaturedProductsResponse = zod.array(
@@ -97,6 +109,10 @@ export const GetNewArrivalsResponseItem = zod.object({
   discountPercent: zod.number().optional(),
   rating: zod.number().optional(),
   reviewCount: zod.number().optional(),
+  leagueId: zod.number().optional(),
+  leagueName: zod.string().optional(),
+  leagueLogoUrl: zod.string().optional(),
+  teamName: zod.string().optional(),
   createdAt: zod.string().optional(),
 });
 export const GetNewArrivalsResponse = zod.array(GetNewArrivalsResponseItem);
@@ -127,6 +143,10 @@ export const GetProductResponse = zod.object({
   discountPercent: zod.number().optional(),
   rating: zod.number().optional(),
   reviewCount: zod.number().optional(),
+  leagueId: zod.number().optional(),
+  leagueName: zod.string().optional(),
+  leagueLogoUrl: zod.string().optional(),
+  teamName: zod.string().optional(),
   createdAt: zod.string().optional(),
 });
 
@@ -141,6 +161,20 @@ export const ListCategoriesResponseItem = zod.object({
   productCount: zod.number().optional(),
 });
 export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem);
+
+/**
+ * @summary List all football leagues
+ */
+export const ListLeaguesResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  slug: zod.string(),
+  country: zod.string().optional(),
+  logoUrl: zod.string().optional(),
+  isInternational: zod.boolean(),
+  productCount: zod.number().optional(),
+});
+export const ListLeaguesResponse = zod.array(ListLeaguesResponseItem);
 
 /**
  * @summary Get current cart
@@ -231,6 +265,10 @@ export const GetWishlistResponseItem = zod.object({
   discountPercent: zod.number().optional(),
   rating: zod.number().optional(),
   reviewCount: zod.number().optional(),
+  leagueId: zod.number().optional(),
+  leagueName: zod.string().optional(),
+  leagueLogoUrl: zod.string().optional(),
+  teamName: zod.string().optional(),
   createdAt: zod.string().optional(),
 });
 export const GetWishlistResponse = zod.array(GetWishlistResponseItem);
@@ -261,6 +299,10 @@ export const AddToWishlistResponseItem = zod.object({
   discountPercent: zod.number().optional(),
   rating: zod.number().optional(),
   reviewCount: zod.number().optional(),
+  leagueId: zod.number().optional(),
+  leagueName: zod.string().optional(),
+  leagueLogoUrl: zod.string().optional(),
+  teamName: zod.string().optional(),
   createdAt: zod.string().optional(),
 });
 export const AddToWishlistResponse = zod.array(AddToWishlistResponseItem);
@@ -291,6 +333,10 @@ export const RemoveFromWishlistResponseItem = zod.object({
   discountPercent: zod.number().optional(),
   rating: zod.number().optional(),
   reviewCount: zod.number().optional(),
+  leagueId: zod.number().optional(),
+  leagueName: zod.string().optional(),
+  leagueLogoUrl: zod.string().optional(),
+  teamName: zod.string().optional(),
   createdAt: zod.string().optional(),
 });
 export const RemoveFromWishlistResponse = zod.array(
@@ -330,4 +376,239 @@ export const CreateOrderBody = zod.object({
   address: zod.string(),
   paymentMethod: zod.enum(["card", "bkash", "nagad", "rocket", "cod"]),
   notes: zod.string().optional(),
+});
+
+/**
+ * @summary Admin - list all products
+ */
+export const AdminListProductsResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  description: zod.string().optional(),
+  price: zod.number(),
+  originalPrice: zod.number().optional(),
+  imageUrl: zod.string(),
+  images: zod.array(zod.string()).optional(),
+  categoryId: zod.number(),
+  categoryName: zod.string(),
+  edition: zod.enum(["player", "fan", "kid", "premium"]),
+  fabricType: zod.string().optional(),
+  sizes: zod.array(zod.string()).optional(),
+  inStock: zod.boolean(),
+  isFeatured: zod.boolean().optional(),
+  isNew: zod.boolean().optional(),
+  discountPercent: zod.number().optional(),
+  rating: zod.number().optional(),
+  reviewCount: zod.number().optional(),
+  leagueId: zod.number().optional(),
+  leagueName: zod.string().optional(),
+  leagueLogoUrl: zod.string().optional(),
+  teamName: zod.string().optional(),
+  createdAt: zod.string().optional(),
+});
+export const AdminListProductsResponse = zod.array(
+  AdminListProductsResponseItem,
+);
+
+/**
+ * @summary Admin - create product
+ */
+export const AdminCreateProductBody = zod.object({
+  name: zod.string(),
+  description: zod.string().optional(),
+  price: zod.number(),
+  originalPrice: zod.number().optional(),
+  imageUrl: zod.string(),
+  images: zod.array(zod.string()).optional(),
+  categoryId: zod.number(),
+  edition: zod.enum(["player", "fan", "kid", "premium"]),
+  fabricType: zod.string().optional(),
+  sizes: zod.array(zod.string()).optional(),
+  inStock: zod.boolean(),
+  isFeatured: zod.boolean().optional(),
+  isNew: zod.boolean().optional(),
+  discountPercent: zod.number().optional(),
+  leagueId: zod.number().optional(),
+  teamName: zod.string().optional(),
+});
+
+/**
+ * @summary Admin - update product
+ */
+export const AdminUpdateProductParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminUpdateProductBody = zod.object({
+  name: zod.string(),
+  description: zod.string().optional(),
+  price: zod.number(),
+  originalPrice: zod.number().optional(),
+  imageUrl: zod.string(),
+  images: zod.array(zod.string()).optional(),
+  categoryId: zod.number(),
+  edition: zod.enum(["player", "fan", "kid", "premium"]),
+  fabricType: zod.string().optional(),
+  sizes: zod.array(zod.string()).optional(),
+  inStock: zod.boolean(),
+  isFeatured: zod.boolean().optional(),
+  isNew: zod.boolean().optional(),
+  discountPercent: zod.number().optional(),
+  leagueId: zod.number().optional(),
+  teamName: zod.string().optional(),
+});
+
+export const AdminUpdateProductResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  description: zod.string().optional(),
+  price: zod.number(),
+  originalPrice: zod.number().optional(),
+  imageUrl: zod.string(),
+  images: zod.array(zod.string()).optional(),
+  categoryId: zod.number(),
+  categoryName: zod.string(),
+  edition: zod.enum(["player", "fan", "kid", "premium"]),
+  fabricType: zod.string().optional(),
+  sizes: zod.array(zod.string()).optional(),
+  inStock: zod.boolean(),
+  isFeatured: zod.boolean().optional(),
+  isNew: zod.boolean().optional(),
+  discountPercent: zod.number().optional(),
+  rating: zod.number().optional(),
+  reviewCount: zod.number().optional(),
+  leagueId: zod.number().optional(),
+  leagueName: zod.string().optional(),
+  leagueLogoUrl: zod.string().optional(),
+  teamName: zod.string().optional(),
+  createdAt: zod.string().optional(),
+});
+
+/**
+ * @summary Admin - delete product
+ */
+export const AdminDeleteProductParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminDeleteProductResponse = zod.object({
+  success: zod.boolean(),
+});
+
+/**
+ * @summary Admin - list offers
+ */
+export const AdminListOffersResponseItem = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  description: zod.string(),
+  discountPercent: zod.number().optional(),
+  imageUrl: zod.string().optional(),
+  validUntil: zod.string().optional(),
+  code: zod.string().optional(),
+});
+export const AdminListOffersResponse = zod.array(AdminListOffersResponseItem);
+
+/**
+ * @summary Admin - create offer
+ */
+export const AdminCreateOfferBody = zod.object({
+  title: zod.string(),
+  description: zod.string(),
+  discountPercent: zod.number().optional(),
+  imageUrl: zod.string().optional(),
+  validUntil: zod.string().optional(),
+  code: zod.string().optional(),
+});
+
+/**
+ * @summary Admin - update offer
+ */
+export const AdminUpdateOfferParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminUpdateOfferBody = zod.object({
+  title: zod.string(),
+  description: zod.string(),
+  discountPercent: zod.number().optional(),
+  imageUrl: zod.string().optional(),
+  validUntil: zod.string().optional(),
+  code: zod.string().optional(),
+});
+
+export const AdminUpdateOfferResponse = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  description: zod.string(),
+  discountPercent: zod.number().optional(),
+  imageUrl: zod.string().optional(),
+  validUntil: zod.string().optional(),
+  code: zod.string().optional(),
+});
+
+/**
+ * @summary Admin - delete offer
+ */
+export const AdminDeleteOfferParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminDeleteOfferResponse = zod.object({
+  success: zod.boolean(),
+});
+
+/**
+ * @summary Admin - create category
+ */
+export const AdminCreateCategoryBody = zod.object({
+  name: zod.string(),
+  slug: zod.string(),
+  imageUrl: zod.string().optional(),
+});
+
+/**
+ * @summary Admin - update category
+ */
+export const AdminUpdateCategoryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AdminUpdateCategoryBody = zod.object({
+  name: zod.string(),
+  slug: zod.string(),
+  imageUrl: zod.string().optional(),
+});
+
+export const AdminUpdateCategoryResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  slug: zod.string(),
+  imageUrl: zod.string().optional(),
+  productCount: zod.number().optional(),
+});
+
+/**
+ * @summary Admin - list all orders
+ */
+export const AdminListOrdersResponseItem = zod.object({
+  id: zod.number(),
+  orderNumber: zod.string(),
+  status: zod.string(),
+  total: zod.number(),
+  paymentMethod: zod.string().optional(),
+  customerName: zod.string(),
+  phone: zod.string(),
+  address: zod.string(),
+  notes: zod.string().optional(),
+  createdAt: zod.string().optional(),
+});
+export const AdminListOrdersResponse = zod.array(AdminListOrdersResponseItem);
+
+/**
+ * @summary Check if current user is admin
+ */
+export const AdminGetMeResponse = zod.object({
+  isAdmin: zod.boolean(),
+  userId: zod.string().optional(),
 });

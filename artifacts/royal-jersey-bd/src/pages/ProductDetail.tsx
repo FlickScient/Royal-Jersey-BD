@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams } from "wouter";
-import { useGetProduct, useAddToCart, getGetCartQueryKey } from "@workspace/api-client-react";
+import { useGetProduct, useAddToCart, getGetCartQueryKey, getGetProductQueryKey } from "@workspace/api-client-react";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import SizeGuide from "@/components/products/SizeGuide";
 import { Heart, ShoppingCart, ShieldCheck, Truck, RotateCcw, Star, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,7 +16,7 @@ export default function ProductDetail() {
   const id = parseInt(params.id || "0");
   
   const { data: product, isLoading } = useGetProduct(id, {
-    query: { enabled: !!id }
+    query: { queryKey: getGetProductQueryKey(id), enabled: !!id }
   });
   
   const [selectedImage, setSelectedImage] = useState<string | null>(null);

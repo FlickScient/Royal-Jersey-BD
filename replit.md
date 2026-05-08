@@ -41,13 +41,20 @@ A premium luxury sports apparel e-commerce website for Royal Jersey BD — Bangl
 ## Product
 
 - Homepage with cinematic hero slider, flash sale banner, editions grid, fabric highlight section, masonry gallery
-- Product listing with filter sidebar (category, edition, stock)
+- Jerseys page (`/jerseys`) with Club/International tab switch, league filter pill bar (Premier League, La Liga, Bundesliga, Serie A, Ligue 1, Champions League, MLS, World Cup, Copa America, Euro, Asian Cup) with league logos, price range filter, sort dropdown
+- Product listing (`/products`) with filter sidebar (category, edition, league, stock), sort (newest/price/popular), and price range filter
 - Product detail with image gallery, size guide popup, sticky add-to-cart
 - Cart side drawer with real-time item management
 - Checkout with bKash, Nagad, Rocket, Card, and Cash on Delivery payment methods
 - Wishlist with heart animations
 - Floating WhatsApp support button
 - Dark/Light mode toggle in hamburger menu
+- Clerk auth at `/sign-in` and `/sign-up` (Email + Google; Facebook not available on free tier)
+- Admin panel at `/admin` — dashboard, product CRUD, offer CRUD, orders viewer; guarded by `ADMIN_USER_IDS` env var
+
+## Admin Setup
+
+After signing up on the site, find your Clerk user ID from the Clerk dashboard or by calling `/api/admin/me` while signed in. Then set the `ADMIN_USER_IDS` environment variable (comma-separated list of Clerk user IDs) so the admin panel becomes accessible.
 
 ## User preferences
 

@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, ShoppingBag, Moon, Sun, ChevronRight, User } from "lucide-react";
+import { Menu, X, ShoppingBag, Moon, Sun, ChevronRight, User, LogOut } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useCart } from "@/contexts/CartContext";
 import { useGetCart } from "@workspace/api-client-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { useUser, useClerk } from "@clerk/react";
+import { useAdminMe } from "@/hooks/useAdminMe";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -13,6 +15,9 @@ export default function Header() {
   const { openCart } = useCart();
   const { data: cart } = useGetCart();
   const [location] = useLocation();
+  const { isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
+  const { isAdmin } = useAdminMe();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,8 +30,9 @@ export default function Header() {
   const itemCount = cart?.itemCount || 0;
 
   const navLinks = [
-    { name: "Jerseys", path: "/products?category=jerseys" },
-    { name: "Trousers", path: "/products?category=trousers" },
+    { name: "Jerseys", path: "/jerseys" },
+    { name: "T-Shirts", path: "/products?category=tshirts" },
+    { name: "Tracksuits", path: "/products?category=tracksuits" },
     { name: "Balls", path: "/products?category=balls" },
     { name: "New Arrivals", path: "/products?collection=new" },
     { name: "Offers", path: "/products?collection=offers" },
@@ -62,6 +68,14 @@ export default function Header() {
                       </Link>
                     </SheetClose>
                   ))}
+                  {isAdmin && (
+                    <SheetClose asChild>
+                      <Link href="/admin" className="flex items-center justify-between p-3 rounded-md hover:bg-muted transition-colors group text-primary font-bold">
+                        <span>Admin Panel</span>
+                        <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </Link>
+                    </SheetClose>
+                  )}
                 </nav>
               </div>
               <div className="p-6 border-t bg-muted/30">
@@ -74,11 +88,32 @@ export default function Header() {
                   </Button>
                 </div>
                 <div className="space-y-3">
-                  <Button className="w-full justify-start" variant="outline">
-                    <User className="mr-2 h-4 w-4" />
-                    Log In
-                  </Button>
-                  <Button className="w-full">Sign Up</Button>
+                  {!isSignedIn ? (
+                    <>
+                      <Button className="w-full justify-start" variant="outline" asChild>
+                        <Link href="/sign-in">
+                          <User className="mr-2 h-4 w-4" />
+                          Log In
+                        </Link>
+                      </Button>
+                      <Button className="w-full" asChild>
+                        <Link href="/sign-up">Sign Up</Link>
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-3 mb-4 px-2">
+                        <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                          {user?.firstName?.[0] || user?.username?.[0] || "U"}
+                        </div>
+                        <span className="font-medium">{user?.firstName || user?.username || "User"}</span>
+                      </div>
+                      <Button className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10" variant="ghost" onClick={() => signOut()}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign Out
+                      </Button>
+                    </>
+                  )}
                 </div>
                 <div className="mt-6 text-center text-sm text-muted-foreground">
                   <p>Help & Support</p>
@@ -100,9 +135,33 @@ export default function Header() {
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
             </Link>
           ))}
+          {isAdmin && (
+            <Link href="/admin" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors">
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-2 md:gap-4">
+          <div className="hidden md:flex items-center gap-2 mr-2">
+            {!isSignedIn ? (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/sign-in">Log In</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link href="/sign-up">Sign Up</Link>
+                </Button>
+              </>
+            ) : (
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium">Hi, {user?.firstName || "User"}</span>
+                <Button variant="ghost" size="icon" onClick={() => signOut()}>
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </div>
           <Button variant="ghost" size="icon" className="hidden md:flex" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
