@@ -71,7 +71,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* LIGHT MODE */
+/* LIGHT MODE — inspired by Royal Jersey BD logo: navy blue + gold on white */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
@@ -81,35 +81,35 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 48 20% 98%;
-  --foreground: 0 0% 10%;
-  --border: 0 0% 85%;
+  --background: 210 30% 99%;
+  --foreground: 218 50% 12%;
+  --border: 218 20% 88%;
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 10%;
-  --card-border: 0 0% 90%;
-  --sidebar: 48 20% 96%;
-  --sidebar-foreground: 0 0% 15%;
-  --sidebar-border: 0 0% 85%;
-  --sidebar-primary: 43 65% 55%;
+  --card-foreground: 218 50% 12%;
+  --card-border: 218 15% 92%;
+  --sidebar: 218 25% 96%;
+  --sidebar-foreground: 218 40% 15%;
+  --sidebar-border: 218 20% 88%;
+  --sidebar-primary: 43 65% 52%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 0 80% 27%;
+  --sidebar-accent: 218 45% 18%;
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 43 65% 55%;
+  --sidebar-ring: 43 65% 52%;
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 10%;
-  --popover-border: 0 0% 90%;
-  --primary: 43 65% 55%;
+  --popover-foreground: 218 50% 12%;
+  --popover-border: 218 15% 92%;
+  --primary: 43 65% 52%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 92%;
-  --secondary-foreground: 0 0% 15%;
-  --muted: 0 0% 92%;
-  --muted-foreground: 0 0% 40%;
-  --accent: 0 80% 27%;
+  --secondary: 218 25% 92%;
+  --secondary-foreground: 218 40% 20%;
+  --muted: 218 20% 93%;
+  --muted-foreground: 218 20% 42%;
+  --accent: 218 45% 18%;
   --accent-foreground: 0 0% 100%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
-  --input: 0 0% 85%;
-  --ring: 43 65% 55%;
+  --input: 218 20% 88%;
+  --ring: 43 65% 52%;
   --chart-1: 43 65% 55%;
   --chart-2: 0 80% 27%;
   --chart-3: 180 50% 50%;

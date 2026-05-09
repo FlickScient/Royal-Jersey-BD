@@ -8,6 +8,7 @@ import wishlistRouter from "./wishlist";
 import offersRouter from "./offers";
 import ordersRouter from "./orders";
 import adminRouter from "./admin";
+import uploadRouter from "./upload";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(wishlistRouter);
 router.use(offersRouter);
 router.use(ordersRouter);
 router.use(adminRouter);
+router.use(uploadRouter);
 
 export default router;

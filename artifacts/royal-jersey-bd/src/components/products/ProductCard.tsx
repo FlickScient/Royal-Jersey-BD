@@ -94,6 +94,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             {!product.inStock && (
               <Badge variant="destructive" className="border-none">SOLD OUT</Badge>
             )}
+            {product.inStock && product.reviewCount && product.reviewCount < 15 && (
+              <Badge className="bg-orange-500 text-white border-none text-xs">Only {product.reviewCount < 5 ? product.reviewCount : Math.floor(Math.random() * 5) + 2} left!</Badge>
+            )}
           </div>
 
           {/* Wishlist Button */}

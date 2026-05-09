@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useGetFeaturedProducts, useGetNewArrivals, useListOffers } from "@workspace/api-client-react";
 import ProductCard from "@/components/products/ProductCard";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ArrowRight, Shield, Truck, CreditCard } from "lucide-react";
+import { ChevronRight, ArrowRight, Shield, Truck, CreditCard, Star, Users, Award, Package, Facebook, Instagram, MessageCircle } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 
 export default function Home() {
@@ -17,15 +17,8 @@ export default function Home() {
 
   useEffect(() => {
     if (!heroApi) return;
-    
-    heroApi.on('select', () => {
-      setCurrentSlide(heroApi.selectedScrollSnap());
-    });
-    
-    const interval = setInterval(() => {
-      heroApi.scrollNext();
-    }, 5000);
-    
+    heroApi.on('select', () => setCurrentSlide(heroApi.selectedScrollSnap()));
+    const interval = setInterval(() => heroApi.scrollNext(), 5000);
     return () => clearInterval(interval);
   }, [heroApi]);
 
@@ -55,6 +48,17 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
+      {/* Announcement Bar */}
+      <div className="bg-[#1a2744] text-white text-xs py-2 text-center px-4 z-50">
+        <div className="flex items-center justify-center gap-4 flex-wrap">
+          <span>🚚 Free delivery on orders above ৳2,000</span>
+          <span className="hidden sm:inline">|</span>
+          <span>📞 Helpline: +880 1234-567890</span>
+          <span className="hidden sm:inline">|</span>
+          <Link href="/track-order" className="underline hover:text-primary transition-colors">Track Your Order →</Link>
+        </div>
+      </div>
+
       {/* Hero Slider */}
       <section className="relative h-[85vh] md:h-[90vh] overflow-hidden bg-black" ref={heroRef}>
         <div className="flex h-full touch-pan-y">
@@ -65,7 +69,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
               </div>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 mt-16">
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
@@ -73,7 +77,7 @@ export default function Home() {
                 >
                   {slide.subtitle}
                 </motion.p>
-                <motion.h1 
+                <motion.h1
                   initial={{ opacity: 0, y: 30 }}
                   animate={currentSlide === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
                   transition={{ duration: 0.8, delay: 0.4 }}
@@ -94,8 +98,6 @@ export default function Home() {
             </div>
           ))}
         </div>
-        
-        {/* Slide Indicators */}
         <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-3">
           {heroSlides.map((_, index) => (
             <button
@@ -129,7 +131,6 @@ export default function Home() {
           <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4">Choose Your Edition</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">Crafted with precision for every level of passion. From the stands to the pitch.</p>
         </div>
-        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { id: 'player', name: 'Player Edition', desc: 'Athletic fit, premium breathability', img: 'https://images.unsplash.com/photo-1600147184288-024d29f8f2b6?q=80&w=2070&auto=format&fit=crop' },
@@ -138,7 +139,7 @@ export default function Home() {
             { id: 'premium', name: 'Premium Fabric', desc: 'Lorex & Leap Jacquard luxury', img: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?q=80&w=1974&auto=format&fit=crop' }
           ].map((edition, i) => (
             <Link key={edition.id} href={`/products?edition=${edition.id}`}>
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -173,7 +174,6 @@ export default function Home() {
               <Link href="/products">View All <ChevronRight className="ml-2 w-4 h-4" /></Link>
             </Button>
           </div>
-          
           {featuredLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[1, 2, 3, 4].map(i => (
@@ -189,7 +189,6 @@ export default function Home() {
           ) : (
             <div className="text-center py-20 text-muted-foreground">No featured products available.</div>
           )}
-          
           <div className="mt-8 text-center md:hidden">
             <Button variant="outline" asChild className="w-full">
               <Link href="/products">View All Products</Link>
@@ -198,10 +197,76 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Why Choose Us */}
+      <section className="py-24 bg-[#1a2744] text-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-semibold uppercase tracking-wider mb-4 border border-primary/20">
+              Why Royal Jersey BD
+            </div>
+            <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4">The Royal Difference</h2>
+            <p className="text-gray-400 max-w-xl mx-auto">We're not just another jersey shop. Here's what makes us Bangladesh's most trusted sports apparel brand.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { icon: Shield, title: "Premium Fabrics Only", desc: "Lorex, Box Mash, and Leap Jacquard — every jersey is made from authenticated, imported materials tested for durability and feel." },
+              { icon: Truck, title: "Nationwide Delivery", desc: "Inside Dhaka in 24-48 hours. All 64 districts covered in 3-5 days. We partner with Pathao, Redx, and SA Paribahan." },
+              { icon: Users, title: "Bulk & Custom Orders", desc: "Team jerseys, school uniforms, corporate kits — we handle large orders with custom names, numbers, and logos." },
+              { icon: Award, title: "Authentic Editions", desc: "Player Edition, Fan Edition, and Premium Lorex — each jersey clearly labelled so you know exactly what you're getting." },
+              { icon: CreditCard, title: "bKash · Nagad · COD", desc: "Pay the way you prefer. Cash on Delivery available everywhere. Online payment via bKash, Nagad, card." },
+              { icon: Star, title: "7-Day Easy Returns", desc: "Wrong size? Defective product? We make returns easy. No questions asked within 7 days of delivery." },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-primary/40 hover:bg-white/10 transition-all"
+              >
+                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
+                  <item.icon className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* New Arrivals */}
+      {newArrivals && newArrivals.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-serif font-bold mb-2">New Arrivals</h2>
+                <p className="text-muted-foreground">Fresh drops just landed.</p>
+              </div>
+              <Button variant="ghost" asChild className="hidden md:flex">
+                <Link href="/products?collection=new">View All <ChevronRight className="ml-2 w-4 h-4" /></Link>
+              </Button>
+            </div>
+            {arrivalsLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[1, 2, 3, 4].map(i => <div key={i} className="aspect-[3/4] bg-muted animate-pulse rounded-lg" />)}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {newArrivals.slice(0, 4).map((product, i) => (
+                  <ProductCard key={product.id} product={product} index={i} />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Fabric Section */}
       <section className="py-24 container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -216,7 +281,6 @@ export default function Home() {
             <p className="text-lg text-muted-foreground">
               We source only the highest grade materials. Box Mash for extreme durability, Lorex for that luxury sheen, and Leap Jacquard for unmatched breathability on the pitch.
             </p>
-            
             <div className="space-y-4 pt-4">
               {[
                 { name: 'Lorex', desc: 'Premium sheen, silky smooth against skin' },
@@ -234,13 +298,13 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            
             <div className="pt-6">
-              <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-8">Request Bulk Customization</Button>
+              <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-8" asChild>
+                <Link href="/contact">Request Bulk Customization</Link>
+              </Button>
             </div>
           </motion.div>
-          
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -255,6 +319,66 @@ export default function Home() {
               <img src="https://images.unsplash.com/photo-1544413660-299165566b1d?q=80&w=1974&auto=format&fit=crop" alt="Finished Product" className="w-full h-64 object-cover rounded-lg" />
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Brand Story */}
+      <section className="py-20 bg-muted/20">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="flex justify-center"
+            >
+              <div className="relative">
+                <img
+                  src="/logo-img.jpg"
+                  alt="Royal Jersey BD"
+                  className="w-64 h-64 rounded-2xl object-cover shadow-2xl"
+                />
+                <div className="absolute -bottom-4 -right-4 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-bold text-sm">
+                  Since 2020
+                </div>
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="space-y-5"
+            >
+              <div className="inline-flex items-center px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold uppercase tracking-wider">
+                Our Story
+              </div>
+              <h2 className="text-3xl md:text-4xl font-serif font-bold leading-tight">
+                Born in Bangladesh,<br />
+                <span className="text-primary">Built for Champions</span>
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Royal Jersey BD was born from a passion for football and frustration with low-quality, overpriced jerseys. We set out to build something different — premium quality, honest pricing, and a brand Bangladeshis can be proud of.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                From a small Facebook page to a full-fledged e-commerce store, thousands of fans and athletes across Bangladesh now trust us for their sportswear. Every jersey we sell carries our commitment to quality and your pride.
+              </p>
+              <div className="flex gap-6 pt-2">
+                {[
+                  { value: "5000+", label: "Customers" },
+                  { value: "64", label: "Districts" },
+                  { value: "4.9★", label: "Rating" },
+                ].map((stat, i) => (
+                  <div key={i} className="text-center">
+                    <div className="text-2xl font-serif font-bold text-primary">{stat.value}</div>
+                    <div className="text-xs text-muted-foreground">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+              <Button asChild variant="outline" size="lg">
+                <Link href="/about">Read Our Full Story</Link>
+              </Button>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -288,16 +412,39 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black text-white pt-20 pb-10">
+      <footer className="bg-[#0d1525] text-white pt-20 pb-10">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="md:col-span-1">
-              <h2 className="font-serif text-2xl font-bold mb-6">Royal Jersey <span className="text-primary">BD</span></h2>
+              <div className="flex items-center gap-3 mb-4">
+                <img src="/logo-img.jpg" alt="Royal Jersey BD" className="w-12 h-12 rounded-lg object-cover" />
+                <h2 className="font-serif text-xl font-bold">Royal Jersey <span className="text-primary">BD</span></h2>
+              </div>
               <p className="text-gray-400 text-sm mb-6">Premium luxury sports apparel crafted with Bangladeshi pride. Elevate your game with our exclusive editions.</p>
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer" />
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer" />
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer" />
+              <div className="flex gap-3 mb-6">
+                <a href="https://facebook.com/royaljersey.bd" target="_blank" rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-[#1877F2]/20 flex items-center justify-center hover:bg-[#1877F2] transition-colors text-[#1877F2] hover:text-white">
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href="https://instagram.com/royaljersey.bd" target="_blank" rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center hover:bg-pink-500 transition-colors text-pink-400 hover:text-white">
+                  <Instagram className="w-5 h-5" />
+                </a>
+                <a href="https://wa.me/+8801234567890" target="_blank" rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-[#25D366]/20 flex items-center justify-center hover:bg-[#25D366] transition-colors text-[#25D366] hover:text-white">
+                  <MessageCircle className="w-5 h-5" />
+                </a>
+              </div>
+              {/* Payment Badges */}
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">We Accept</p>
+                <div className="flex flex-wrap gap-2">
+                  {["bKash", "Nagad", "COD", "Visa", "MasterCard"].map(method => (
+                    <span key={method} className="px-2.5 py-1 text-xs font-bold rounded-md bg-white/10 text-gray-300 border border-white/10">
+                      {method}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
             <div>
@@ -307,32 +454,71 @@ export default function Home() {
                 <li><Link href="/products?category=trousers" className="hover:text-primary transition-colors">Trousers</Link></li>
                 <li><Link href="/products?category=balls" className="hover:text-primary transition-colors">Footballs</Link></li>
                 <li><Link href="/products?collection=new" className="hover:text-primary transition-colors">New Arrivals</Link></li>
+                <li><Link href="/products?collection=offers" className="hover:text-primary transition-colors">Offers</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-6 text-lg">Support</h4>
+              <h4 className="font-bold mb-6 text-lg">Help</h4>
               <ul className="space-y-4 text-gray-400">
-                <li><a href="#" className="hover:text-primary transition-colors">Track Order</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Size Guide</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Return Policy</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Contact Us</a></li>
+                <li><Link href="/track-order" className="hover:text-primary transition-colors">Track Order</Link></li>
+                <li><Link href="/faq" className="hover:text-primary transition-colors">FAQ</Link></li>
+                <li><Link href="/about" className="hover:text-primary transition-colors">About Us</Link></li>
+                <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
+                <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-bold mb-6 text-lg">Contact</h4>
-              <ul className="space-y-4 text-gray-400">
-                <li>House 12, Road 5, Block A</li>
-                <li>Mirpur, Dhaka 1216</li>
-                <li>support@royaljersey.bd</li>
-                <li className="text-primary font-bold text-lg">+880 1234-567890</li>
+              <ul className="space-y-4 text-gray-400 text-sm">
+                <li className="flex items-start gap-2">
+                  <Package className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  House 12, Road 5, Block A, Mirpur, Dhaka 1216
+                </li>
+                <li>
+                  <a href="mailto:support@royaljersey.bd" className="hover:text-primary transition-colors">support@royaljersey.bd</a>
+                </li>
+                <li>
+                  <a href="https://wa.me/+8801234567890" className="text-primary font-bold text-base hover:text-primary/80 flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4" />
+                    +880 1234-567890
+                  </a>
+                </li>
+                <li className="pt-2 text-xs">
+                  <p className="font-semibold text-gray-300 mb-1">Delivery Policy</p>
+                  <p>Inside Dhaka: ৳70 · 24-48 hrs</p>
+                  <p>Outside Dhaka: ৳120 · 3-5 days</p>
+                  <p className="text-primary">Free above ৳2,000</p>
+                </li>
               </ul>
+            </div>
+          </div>
+          {/* Return Policy Strip */}
+          <div className="border-t border-white/10 pt-6 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center text-xs text-gray-500">
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-primary font-bold">7 Days</span>
+                <span>Easy Returns</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-primary font-bold">100%</span>
+                <span>Original Products</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-primary font-bold">COD</span>
+                <span>Cash on Delivery</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-primary font-bold">24/7</span>
+                <span>WhatsApp Support</span>
+              </div>
             </div>
           </div>
           <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
             <p>&copy; {new Date().getFullYear()} Royal Jersey BD. All rights reserved.</p>
             <div className="flex gap-6 mt-4 md:mt-0">
-              <a href="#" className="hover:text-white">Privacy Policy</a>
-              <a href="#" className="hover:text-white">Terms of Service</a>
+              <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
+              <Link href="/faq" className="hover:text-white">FAQ</Link>
+              <Link href="/about" className="hover:text-white">About Us</Link>
             </div>
           </div>
         </div>

@@ -15,6 +15,7 @@ import Header from "@/components/layout/Header";
 import CartDrawer from "@/components/layout/CartDrawer";
 import FloatingCart from "@/components/layout/FloatingCart";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
+import DiscountPopup from "@/components/layout/DiscountPopup";
 
 import Home from "@/pages/Home";
 import Products from "@/pages/Products";
@@ -26,6 +27,11 @@ import Wishlist from "@/pages/Wishlist";
 import SignInPage from "@/pages/SignInPage";
 import SignUpPage from "@/pages/SignUpPage";
 import NotFound from "@/pages/not-found";
+import About from "@/pages/About";
+import Contact from "@/pages/Contact";
+import FAQ from "@/pages/FAQ";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TrackOrder from "@/pages/TrackOrder";
 
 import AdminLayout from "@/pages/admin/AdminLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -49,8 +55,6 @@ const clerkPubKey = publishableKeyFromHost(
   import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
 );
 
-// proxyUrl is only valid in production — in dev it causes Clerk to load its JS
-// bundle from the Replit dev proxy which doesn't serve CDN assets.
 const clerkProxyUrl = import.meta.env.PROD
   ? import.meta.env.VITE_CLERK_PROXY_URL
   : undefined;
@@ -138,6 +142,11 @@ function Router() {
       <Route path="/cart" component={Cart} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/wishlist" component={Wishlist} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/faq" component={FAQ} />
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/track-order" component={TrackOrder} />
       <Route path="/sign-in/*?" component={SignInPage} />
       <Route path="/sign-up/*?" component={SignUpPage} />
       <Route path="/admin">
@@ -196,6 +205,7 @@ function ClerkProviderWithRoutes() {
                   <CartDrawer />
                   <FloatingCart />
                   <WhatsAppButton />
+                  <DiscountPopup />
                 </div>
                 <Toaster />
               </TooltipProvider>

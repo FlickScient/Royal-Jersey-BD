@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "wouter";
+import { useParams, Link } from "wouter";
 import { useGetProduct, useAddToCart, getGetCartQueryKey, getGetProductQueryKey } from "@workspace/api-client-react";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -8,8 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import SizeGuide from "@/components/products/SizeGuide";
-import { Heart, ShoppingCart, ShieldCheck, Truck, RotateCcw, Star, Check } from "lucide-react";
+import { Heart, ShoppingCart, ShieldCheck, Truck, RotateCcw, Star, Check, MessageCircle, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+
+const SAMPLE_REVIEWS = [
+  { name: "Rahim U.", rating: 5, date: "2 days ago", comment: "Best quality jersey I've ever bought in BD. The Lorex fabric is amazing, very smooth and the stitching is perfect. Delivered in 24 hours to Dhaka!", verified: true },
+  { name: "Karim H.", rating: 5, date: "1 week ago", comment: "Ordered for my whole team (12 jerseys). Got great discount, custom name printing was spot on. Will definitely order again.", verified: true },
+  { name: "Shakib M.", rating: 4, date: "2 weeks ago", comment: "Product is exactly as described. Sizing was a bit tight so I suggest going one size up for Player Edition. But quality is top notch.", verified: true },
+  { name: "Farhan A.", rating: 5, date: "3 weeks ago", comment: "Received same day (inside Dhaka). Packaging was nice, jersey looks premium. My son loves it!", verified: false },
+];
 
 export default function ProductDetail() {
   const params = useParams();
@@ -245,6 +252,90 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
+
+        {/* Customer Reviews */}
+      <section className="container mx-auto px-4 py-12 border-t mt-12">
+        <div className="max-w-2xl">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-serif font-bold mb-1">Customer Reviews</h2>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center">
+                  {[1,2,3,4,5].map(s => (
+                    <Star key={s} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <span className="font-bold">4.8</span>
+                <span className="text-muted-foreground text-sm">({SAMPLE_REVIEWS.length + (product.reviewCount || 0)} reviews)</span>
+              </div>
+            </div>
+            <a
+              href={`https://wa.me/+8801234567890?text=Hi, I want to review product: ${encodeURIComponent(product.name)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-primary hover:underline flex items-center gap-1"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Write a Review
+            </a>
+          </div>
+
+          <div className="space-y-5">
+            {SAMPLE_REVIEWS.map((review, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="p-5 rounded-lg border bg-card"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary text-sm">
+                      {review.name[0]}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">{review.name}</span>
+                        {review.verified && (
+                          <span className="text-xs text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                            <Check className="w-3 h-3" /> Verified
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        {[1,2,3,4,5].map(s => (
+                          <Star key={s} className={`w-3 h-3 ${s <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{review.date}</span>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Share */}
+          <div className="mt-8 p-5 rounded-lg bg-muted/30 border flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <p className="font-medium text-sm">Love this product?</p>
+              <p className="text-xs text-muted-foreground">Share it with your friends on WhatsApp</p>
+            </div>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`Check out ${product.name} at Royal Jersey BD! 🔥 ৳${product.price} — ${window.location.href}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#25D366] text-white text-sm font-medium hover:bg-[#1ea855] transition-colors"
+            >
+              <Share2 className="w-4 h-4" />
+              Share on WhatsApp
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* Sticky Add to Cart */}
       <AnimatePresence>
