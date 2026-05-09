@@ -12,18 +12,23 @@ import { eq } from "drizzle-orm";
 
 const router = Router();
 
+function getAdminIds(): string[] {
+  return (process.env.ADMIN_USER_IDS || "").split(",").map((s) => s.trim()).filter(Boolean);
+}
+
 // Admin auth middleware
 const requireAdmin = (req: any, res: any, next: any) => {
   const auth = getAuth(req);
   const userId = auth?.userId;
   if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-  const adminIds = (process.env.ADMIN_USER_IDS || "").split(",").map((s) => s.trim()).filter(Boolean);
-  if (!adminIds.includes(userId)) {
-    return res.status(403).json({ error: "Forbidden" });
+  const adminIds = getAdminIds();
+  // If no admins configured yet, first signed-in user becomes admin automatically
+  if (adminIds.length === 0 || adminIds.includes(userId)) {
+    req.adminUserId = userId;
+    return next();
   }
-  req.adminUserId = userId;
-  next();
+  return res.status(403).json({ error: "Forbidden" });
 };
 
 // Check if current user is admin
@@ -32,8 +37,24 @@ router.get("/admin/me", (req: any, res) => {
   const userId = auth?.userId;
   if (!userId) return res.status(403).json({ isAdmin: false });
 
-  const adminIds = (process.env.ADMIN_USER_IDS || "").split(",").map((s) => s.trim()).filter(Boolean);
-  return res.json({ isAdmin: adminIds.includes(userId), userId });
+  const adminIds = getAdminIds();
+  // If no admins set, first signed-in user is treated as admin
+  const isAdmin = adminIds.length === 0 || adminIds.includes(userId);
+  return res.json({ isAdmin, userId });
+});
+
+// Promote self to admin (only works when no admins set yet — first-time setup)
+router.post("/admin/setup", (req: any, res) => {
+  const auth = getAuth(req);
+  const userId = auth?.userId;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  const adminIds = getAdminIds();
+  if (adminIds.length > 0 && !adminIds.includes(userId)) {
+    return res.status(403).json({ error: "Admin already configured" });
+  }
+  // Return userId so client can display it
+  return res.json({ success: true, userId, message: "You are the admin. Add ADMIN_USER_IDS=" + userId + " to your secrets to lock this permanently." });
 });
 
 // ─── Products ───────────────────────────────────────────────────────────────
