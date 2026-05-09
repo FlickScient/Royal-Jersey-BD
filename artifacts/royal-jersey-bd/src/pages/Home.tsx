@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useGetFeaturedProducts, useGetNewArrivals, useListOffers } from "@workspace/api-client-react";
 import ProductCard from "@/components/products/ProductCard";
+import WorldCupBanner from "@/components/layout/WorldCupBanner";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, ArrowRight, Shield, Truck, CreditCard, Star, Users, Award, Package, Facebook, Instagram, MessageCircle } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
@@ -124,6 +125,9 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* World Cup 2026 Exclusive Banner */}
+      <WorldCupBanner />
 
       {/* Editions Grid */}
       <section className="py-20 md:py-32 container mx-auto px-4">
