@@ -49,7 +49,11 @@ const clerkPubKey = publishableKeyFromHost(
   import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
 );
 
-const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
+// proxyUrl is only valid in production — in dev it causes Clerk to load its JS
+// bundle from the Replit dev proxy which doesn't serve CDN assets.
+const clerkProxyUrl = import.meta.env.PROD
+  ? import.meta.env.VITE_CLERK_PROXY_URL
+  : undefined;
 
 function stripBase(path: string): string {
   return basePath && path.startsWith(basePath)
