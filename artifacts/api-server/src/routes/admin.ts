@@ -202,9 +202,10 @@ router.put("/admin/categories/:id", requireAdmin, async (req, res) => {
 
 // ─── Orders ──────────────────────────────────────────────────────────────────
 
-router.get("/admin/orders", requireAdmin, async (req, res) => {
-  const rows = await db.select().from(ordersTable).orderBy(ordersTable.createdAt);
-  return res.json(rows.map((o) => ({
+const ORDER_STATUSES = ["pending", "processing", "shipped", "delivered", "cancelled"] as const;
+
+function mapOrder(o: typeof ordersTable.$inferSelect, includeItems = false) {
+  return {
     id: o.id,
     orderNumber: o.orderNumber,
     status: o.status,
@@ -214,8 +215,32 @@ router.get("/admin/orders", requireAdmin, async (req, res) => {
     phone: o.phone,
     address: o.address,
     notes: o.notes ?? undefined,
+    items: includeItems ? JSON.parse(o.itemsJson) : undefined,
     createdAt: o.createdAt.toISOString(),
-  })));
+  };
+}
+
+router.get("/admin/orders", requireAdmin, async (req, res) => {
+  const rows = await db.select().from(ordersTable).orderBy(ordersTable.createdAt);
+  return res.json(rows.map((o) => mapOrder(o, true)));
+});
+
+router.get("/admin/orders/:id", requireAdmin, async (req, res) => {
+  const id = parseInt(req.params.id);
+  const rows = await db.select().from(ordersTable).where(eq(ordersTable.id, id)).limit(1);
+  if (!rows.length) return res.status(404).json({ error: "Not found" });
+  return res.json(mapOrder(rows[0], true));
+});
+
+router.patch("/admin/orders/:id/status", requireAdmin, async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { status } = req.body;
+  if (!ORDER_STATUSES.includes(status)) {
+    return res.status(400).json({ error: `Invalid status. Must be one of: ${ORDER_STATUSES.join(", ")}` });
+  }
+  const [order] = await db.update(ordersTable).set({ status }).where(eq(ordersTable.id, id)).returning();
+  if (!order) return res.status(404).json({ error: "Not found" });
+  return res.json(mapOrder(order, true));
 });
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
