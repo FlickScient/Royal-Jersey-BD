@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { Link } from "wouter";
 import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useGetSiteSettings } from "@workspace/api-client-react";
 
 export default function WhatsAppButton() {
   const [isHovered, setIsHovered] = useState(false);
+  const { data: siteSettings } = useGetSiteSettings();
+  const whatsappNumber = siteSettings?.whatsapp_number || "+8801234567890";
+  const cleanNumber = whatsappNumber.replace(/[^0-9]/g, "");
 
   return (
     <motion.a
-      href="https://wa.me/+8801234567890"
+      href={`https://wa.me/${cleanNumber}`}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 flex items-center justify-center bg-[#25D366] text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all"

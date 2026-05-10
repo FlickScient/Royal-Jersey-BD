@@ -2219,3 +2219,213 @@ export function useAdminGetMe<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+import type { SiteSettings } from "./api.schemas";
+
+// ─── Admin Delete Category ──────────────────────────────────────────────────
+
+export const getAdminDeleteCategoryUrl = (id: number) => {
+  return `/api/admin/categories/${id}`;
+};
+
+export const adminDeleteCategory = async (
+  id: number,
+  options?: RequestInit,
+): Promise<DeleteResult> => {
+  return customFetch<DeleteResult>(getAdminDeleteCategoryUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const useAdminDeleteCategory = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminDeleteCategory>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminDeleteCategory>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {};
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminDeleteCategory>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+    return adminDeleteCategory(id, requestOptions);
+  };
+
+  return useMutation({
+    mutationFn,
+    ...mutationOptions,
+  });
+};
+
+// ─── Site Settings (Public) ─────────────────────────────────────────────────
+
+export const getGetSiteSettingsUrl = () => {
+  return `/api/site-settings`;
+};
+
+export const getSiteSettings = async (
+  options?: RequestInit,
+): Promise<SiteSettings> => {
+  return customFetch<SiteSettings>(getGetSiteSettingsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetSiteSettingsQueryKey = () => {
+  return [`/api/site-settings`] as const;
+};
+
+export const getGetSiteSettingsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSiteSettings>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getSiteSettings>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getGetSiteSettingsQueryKey();
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getSiteSettings>>> = ({
+    signal,
+  }) => getSiteSettings({ signal, ...requestOptions });
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getSiteSettings>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export function useGetSiteSettings<
+  TData = Awaited<ReturnType<typeof getSiteSettings>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getSiteSettings>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetSiteSettingsQueryOptions(options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+// ─── Site Settings (Admin) ──────────────────────────────────────────────────
+
+export const getAdminGetSiteSettingsUrl = () => {
+  return `/api/admin/site-settings`;
+};
+
+export const adminGetSiteSettings = async (
+  options?: RequestInit,
+): Promise<SiteSettings> => {
+  return customFetch<SiteSettings>(getAdminGetSiteSettingsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getAdminGetSiteSettingsQueryKey = () => {
+  return [`/api/admin/site-settings`] as const;
+};
+
+export const getAdminGetSiteSettingsQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminGetSiteSettings>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetSiteSettings>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getAdminGetSiteSettingsQueryKey();
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetSiteSettings>>> = ({
+    signal,
+  }) => adminGetSiteSettings({ signal, ...requestOptions });
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetSiteSettings>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export function useAdminGetSiteSettings<
+  TData = Awaited<ReturnType<typeof adminGetSiteSettings>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof adminGetSiteSettings>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getAdminGetSiteSettingsQueryOptions(options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+export const adminUpdateSiteSettings = async (
+  data: SiteSettings,
+  options?: RequestInit,
+): Promise<SiteSettings> => {
+  return customFetch<SiteSettings>(getAdminGetSiteSettingsUrl(), {
+    ...options,
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+};
+
+export const useAdminUpdateSiteSettings = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminUpdateSiteSettings>>,
+    TError,
+    { data: SiteSettings },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminUpdateSiteSettings>>,
+  TError,
+  { data: SiteSettings },
+  TContext
+> => {
+  const { mutation: mutationOptions, request: requestOptions } = options ?? {};
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminUpdateSiteSettings>>,
+    { data: SiteSettings }
+  > = (props) => {
+    const { data } = props ?? {};
+    return adminUpdateSiteSettings(data, requestOptions);
+  };
+  return useMutation({ mutationFn, ...mutationOptions });
+};

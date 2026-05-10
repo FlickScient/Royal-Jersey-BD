@@ -220,3 +220,20 @@ export const ListProductsSort = {
   newest: "newest",
   popular: "popular",
 } as const;
+
+export interface SiteSettings {
+  [key: string]: string;
+}
+
+export interface HeroSlide {
+  title: string;
+  subtitle: string;
+  image: string;
+  cta: string;
+  link: string;
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}

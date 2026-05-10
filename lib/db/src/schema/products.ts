@@ -88,6 +88,12 @@ export const ordersTable = pgTable("orders", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const siteSettingsTable = pgTable("site_settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const insertCategorySchema = createInsertSchema(categoriesTable).omit({ id: true, createdAt: true });
 export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, createdAt: true });
 export const insertOfferSchema = createInsertSchema(offersTable).omit({ id: true, createdAt: true });
@@ -100,6 +106,7 @@ export type Offer = typeof offersTable.$inferSelect;
 export type CartItem = typeof cartItemsTable.$inferSelect;
 export type WishlistItem = typeof wishlistItemsTable.$inferSelect;
 export type Order = typeof ordersTable.$inferSelect;
+export type SiteSetting = typeof siteSettingsTable.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type InsertLeague = z.infer<typeof insertLeagueSchema>;

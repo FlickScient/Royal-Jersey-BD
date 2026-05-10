@@ -38,6 +38,8 @@ import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminOffers from "@/pages/admin/AdminOffers";
 import AdminOrders from "@/pages/admin/AdminOrders";
+import AdminCategories from "@/pages/admin/AdminCategories";
+import AdminSiteSettings from "@/pages/admin/AdminSiteSettings";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -159,6 +161,11 @@ function Router() {
           <AdminProducts />
         </AdminLayout>
       </Route>
+      <Route path="/admin/categories">
+        <AdminLayout>
+          <AdminCategories />
+        </AdminLayout>
+      </Route>
       <Route path="/admin/offers">
         <AdminLayout>
           <AdminOffers />
@@ -167,6 +174,11 @@ function Router() {
       <Route path="/admin/orders">
         <AdminLayout>
           <AdminOrders />
+        </AdminLayout>
+      </Route>
+      <Route path="/admin/settings">
+        <AdminLayout>
+          <AdminSiteSettings />
         </AdminLayout>
       </Route>
       <Route component={NotFound} />

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Package, Tag, ShoppingCart, LogOut, Copy, CheckCircle, Shield, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Package, Tag, ShoppingCart, LogOut, Copy, CheckCircle, Shield, ExternalLink, FolderOpen, Settings } from "lucide-react";
 import { useAdminMe } from "@/hooks/useAdminMe";
 import { useClerk } from "@clerk/react";
 import { Button } from "@/components/ui/button";
@@ -75,19 +75,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-semibold text-[#c9a84c] uppercase tracking-wider">Step 2 — Add to Replit Secrets</p>
+              <p className="text-sm font-semibold text-[#c9a84c] uppercase tracking-wider">Step 2 — Add to Render Environment Variables</p>
               <ol className="text-sm text-muted-foreground space-y-2 list-none">
-                <li className="flex gap-2"><span className="text-[#c9a84c] font-bold">1.</span>Open your Replit project</li>
-                <li className="flex gap-2"><span className="text-[#c9a84c] font-bold">2.</span>Click <strong className="text-white">Secrets</strong> (lock icon in the left sidebar)</li>
-                <li className="flex gap-2"><span className="text-[#c9a84c] font-bold">3.</span>Add a secret named <code className="bg-white/10 px-1 rounded text-white">ADMIN_USER_IDS</code></li>
+                <li className="flex gap-2"><span className="text-[#c9a84c] font-bold">1.</span>Go to your Render dashboard</li>
+                <li className="flex gap-2"><span className="text-[#c9a84c] font-bold">2.</span>Open your service → Environment</li>
+                <li className="flex gap-2"><span className="text-[#c9a84c] font-bold">3.</span>Add/update <code className="bg-white/10 px-1 rounded text-white">ADMIN_USER_IDS</code></li>
                 <li className="flex gap-2"><span className="text-[#c9a84c] font-bold">4.</span>Paste your User ID as the value</li>
-                <li className="flex gap-2"><span className="text-[#c9a84c] font-bold">5.</span>Restart the API server workflow</li>
+                <li className="flex gap-2"><span className="text-[#c9a84c] font-bold">5.</span>Save and redeploy</li>
               </ol>
             </div>
 
             <div className="space-y-2">
               <p className="text-sm font-semibold text-[#c9a84c] uppercase tracking-wider">Step 3 — Reload This Page</p>
-              <p className="text-sm text-muted-foreground">After restarting, come back here and refresh. The admin panel will unlock.</p>
+              <p className="text-sm text-muted-foreground">After redeploying, come back here and refresh. The admin panel will unlock.</p>
               <Button
                 onClick={() => window.location.reload()}
                 variant="outline"
@@ -109,8 +109,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Products", href: "/admin/products", icon: Package },
+    { name: "Categories", href: "/admin/categories", icon: FolderOpen },
     { name: "Offers", href: "/admin/offers", icon: Tag },
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
+    { name: "Site Settings", href: "/admin/settings", icon: Settings },
   ];
 
   return (

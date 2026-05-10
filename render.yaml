@@ -3,7 +3,7 @@ services:
     name: royal-jersey-bd
     runtime: node
     plan: free
-    buildCommand: pnpm install && BASE_PATH=/ pnpm --filter @workspace/royal-jersey-bd run build && pnpm --filter @workspace/api-server run build
+    buildCommand: pnpm install && pnpm --filter @workspace/db push-force && BASE_PATH=/ pnpm --filter @workspace/royal-jersey-bd run build && pnpm --filter @workspace/api-server run build
     startCommand: node artifacts/api-server/dist/index.mjs
     envVars:
       - key: NODE_ENV
