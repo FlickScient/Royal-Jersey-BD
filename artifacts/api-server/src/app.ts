@@ -72,4 +72,25 @@ if (process.env.NODE_ENV === "production") {
   }
 }
 
+// Global JSON error handler — Express 5 auto-catches async route errors and
+// forwards them here. Without this, Express sends an HTML error page which
+// causes "Unexpected token '<'" in the admin panel.
+app.use(
+  (
+    err: Error,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
+    logger.error({ err }, "Unhandled error");
+    const status =
+      (err as { status?: number }).status ||
+      (err as { statusCode?: number }).statusCode ||
+      500;
+    if (!res.headersSent) {
+      res.status(status).json({ error: err.message || "Internal server error" });
+    }
+  },
+);
+
 export default app;

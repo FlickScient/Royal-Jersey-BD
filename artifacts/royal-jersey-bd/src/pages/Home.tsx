@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { useGetFeaturedProducts, useGetNewArrivals, useListOffers, useGetSiteSettings } from "@workspace/api-client-react";
+import { useGetFeaturedProducts, useGetNewArrivals, useListOffers, useGetSiteSettings, useListLeagues } from "@workspace/api-client-react";
 import type { HeroSlide } from "@workspace/api-client-react";
 import ProductCard from "@/components/products/ProductCard";
 import WorldCupBanner from "@/components/layout/WorldCupBanner";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ArrowRight, Shield, Truck, CreditCard, Star, Users, Award, Package, Facebook, Instagram, MessageCircle } from "lucide-react";
+import { ChevronRight, ArrowRight, Shield, Truck, CreditCard, Star, Users, Award, Package, Facebook, Instagram, MessageCircle, Trophy } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 
 const DEFAULT_HERO_SLIDES: HeroSlide[] = [
@@ -38,9 +38,11 @@ export default function Home() {
   const { data: newArrivals, isLoading: arrivalsLoading } = useGetNewArrivals();
   const { data: offers } = useListOffers();
   const { data: siteSettings } = useGetSiteSettings();
+  const { data: leagues } = useListLeagues();
 
   const [heroRef, heroApi] = useEmblaCarousel({ loop: true });
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showAllLeagues, setShowAllLeagues] = useState(false);
 
   useEffect(() => {
     if (!heroApi) return;
@@ -66,6 +68,14 @@ export default function Home() {
   const facebookUrl = siteSettings?.facebook_url || "https://facebook.com/royaljersey.bd";
   const instagramUrl = siteSettings?.instagram_url || "https://instagram.com/royaljersey.bd";
   const aboutText = siteSettings?.about_text || "Royal Jersey BD was born from a passion for football and frustration with low-quality, overpriced jerseys. We set out to build something different — premium quality, honest pricing, and a brand Bangladeshis can be proud of.\n\nFrom a small Facebook page to a full-fledged e-commerce store, thousands of fans and athletes across Bangladesh now trust us for their sportswear. Every jersey we sell carries our commitment to quality and your pride.";
+
+  let sectionVis: Record<string, boolean> = {};
+  try {
+    if (siteSettings?.section_visibility) {
+      sectionVis = JSON.parse(siteSettings.section_visibility);
+    }
+  } catch { /* use defaults */ }
+  const showSection = (key: string) => sectionVis[key] !== false;
 
   const editions = [
     { id: 'player', name: 'Player Edition', desc: 'Athletic fit, premium breathability', img: siteSettings?.edition_player_image || 'https://images.unsplash.com/photo-1600147184288-024d29f8f2b6?q=80&w=2070&auto=format&fit=crop' },
@@ -146,7 +156,7 @@ export default function Home() {
       </section>
 
       {/* Offers Banner */}
-      {offers && offers.length > 0 && (
+      {showSection('offers') && offers && offers.length > 0 && (
         <section className="bg-accent text-accent-foreground py-3 overflow-hidden">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-center gap-4 text-sm md:text-base font-medium">
@@ -161,9 +171,10 @@ export default function Home() {
       )}
 
       {/* World Cup 2026 Exclusive Banner */}
-      <WorldCupBanner />
+      {showSection('worldcup') && <WorldCupBanner />}
 
       {/* Editions Grid */}
+      {showSection('editions') && (
       <section className="py-20 md:py-32 container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4">Choose Your Edition</h2>
@@ -195,7 +206,9 @@ export default function Home() {
         </div>
       </section>
 
+      )}
       {/* Featured Products */}
+      {showSection('featured') && (
       <section className="py-16 bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="flex items-end justify-between mb-10">
@@ -230,7 +243,9 @@ export default function Home() {
         </div>
       </section>
 
+      )}
       {/* Why Choose Us */}
+      {showSection('whyus') && (
       <section className="py-24 bg-[#1a2744] text-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -268,8 +283,9 @@ export default function Home() {
         </div>
       </section>
 
+      )}
       {/* New Arrivals */}
-      {newArrivals && newArrivals.length > 0 && (
+      {showSection('arrivals') && newArrivals && newArrivals.length > 0 && (
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="flex items-end justify-between mb-10">
@@ -296,7 +312,69 @@ export default function Home() {
         </section>
       )}
 
+      {/* Shop by League */}
+      {showSection('leagues') && leagues && leagues.length > 0 && (
+        <section className="py-16 bg-muted/10">
+          <div className="container mx-auto px-4">
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-serif font-bold mb-2">Shop by League</h2>
+                <p className="text-muted-foreground">Find jerseys from your favourite competition.</p>
+              </div>
+              <Button variant="ghost" asChild className="hidden md:flex">
+                <Link href="/jerseys">All Leagues <ChevronRight className="ml-2 w-4 h-4" /></Link>
+              </Button>
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+              {(showAllLeagues ? leagues : leagues.slice(0, 6)).map((league, i) => (
+                <Link key={league.id} href={`/jerseys?leagueId=${league.id}`}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05 }}
+                    className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group"
+                  >
+                    {league.logoUrl ? (
+                      <img
+                        src={league.logoUrl}
+                        alt={league.name}
+                        className="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Trophy className="w-5 h-5 text-primary" />
+                      </div>
+                    )}
+                    <span className="text-xs font-semibold text-center leading-tight line-clamp-2">{league.name}</span>
+                  </motion.div>
+                </Link>
+              ))}
+            </div>
+            {leagues.length > 6 && (
+              <div className="mt-6 text-center">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAllLeagues(!showAllLeagues)}
+                  className="border-border/50 hover:border-primary/50"
+                >
+                  {showAllLeagues
+                    ? "Show Less"
+                    : `+ ${leagues.length - 6} More Leagues`}
+                </Button>
+              </div>
+            )}
+            <div className="mt-6 text-center md:hidden">
+              <Button variant="ghost" asChild>
+                <Link href="/jerseys">Browse All Leagues <ChevronRight className="ml-1 w-4 h-4" /></Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Fabric Section */}
+      {showSection('fabric') && (
       <section className="py-24 container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <motion.div
@@ -355,7 +433,9 @@ export default function Home() {
         </div>
       </section>
 
+      )}
       {/* Brand Story */}
+      {showSection('brandstory') && (
       <section className="py-20 bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -412,7 +492,9 @@ export default function Home() {
         </div>
       </section>
 
+      )}
       {/* Trust Badges */}
+      {showSection('trustbadges') && (
       <section className="border-y bg-card">
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-border">
@@ -440,6 +522,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Footer */}
       <footer className="bg-[#0d1525] text-white pt-20 pb-10">
