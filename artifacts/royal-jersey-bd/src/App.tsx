@@ -57,8 +57,8 @@ const clerkPubKey = publishableKeyFromHost(
   import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
 );
 
-const clerkProxyUrl = import.meta.env.PROD
-  ? import.meta.env.VITE_CLERK_PROXY_URL
+const clerkProxyUrl: string | undefined = import.meta.env.PROD
+  ? (import.meta.env.VITE_CLERK_PROXY_URL || undefined)
   : undefined;
 
 function stripBase(path: string): string {
@@ -189,9 +189,20 @@ function Router() {
 function ClerkProviderWithRoutes() {
   const [, setLocation] = useLocation();
 
+  if (!clerkPubKey) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <div className="text-center space-y-2 p-8">
+          <h2 className="text-xl font-semibold text-red-400">Auth Not Configured</h2>
+          <p className="text-gray-400 text-sm">VITE_CLERK_PUBLISHABLE_KEY is missing. Check environment setup.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ClerkProvider
-      publishableKey={clerkPubKey ?? ""}
+      publishableKey={clerkPubKey}
       proxyUrl={clerkProxyUrl}
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}

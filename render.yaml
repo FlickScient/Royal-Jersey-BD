@@ -3,7 +3,7 @@ services:
     name: royal-jersey-bd
     runtime: node
     plan: free
-    buildCommand: pnpm install && pnpm --filter @workspace/db push-force && BASE_PATH=/ pnpm --filter @workspace/royal-jersey-bd run build && pnpm --filter @workspace/api-server run build
+    buildCommand: pnpm install && pnpm --filter @workspace/db push-force && BASE_PATH=/ VITE_CLERK_PUBLISHABLE_KEY=$CLERK_PUBLISHABLE_KEY VITE_CLERK_PROXY_URL=https://royaljerseybd.onrender.com/api/__clerk pnpm --filter @workspace/royal-jersey-bd run build && pnpm --filter @workspace/api-server run build
     startCommand: node artifacts/api-server/dist/index.mjs
     envVars:
       - key: NODE_ENV
@@ -25,4 +25,4 @@ services:
       - key: CLOUDINARY_API_SECRET
         sync: false
       - key: VITE_CLERK_PROXY_URL
-        sync: false
+        value: https://royaljerseybd.onrender.com/api/__clerk
