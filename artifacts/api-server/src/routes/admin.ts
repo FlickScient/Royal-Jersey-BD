@@ -152,6 +152,7 @@ router.post("/admin/offers", requireAdmin, async (req, res) => {
     imageUrl: body.imageUrl ?? null,
     validUntil: body.validUntil ? new Date(body.validUntil) : null,
     code: body.code ?? null,
+    isActive: body.isActive !== undefined ? body.isActive : true,
   }).returning();
   return res.status(201).json(mapOffer(offer));
 });
@@ -166,8 +167,20 @@ router.put("/admin/offers/:id", requireAdmin, async (req, res) => {
     imageUrl: body.imageUrl ?? null,
     validUntil: body.validUntil ? new Date(body.validUntil) : null,
     code: body.code ?? null,
+    isActive: body.isActive !== undefined ? body.isActive : true,
   }).where(eq(offersTable.id, id)).returning();
   if (!offer) return res.status(404).json({ error: "Not found" });
+  return res.json(mapOffer(offer));
+});
+
+router.patch("/admin/offers/:id/toggle", requireAdmin, async (req, res) => {
+  const id = parseInt(req.params.id);
+  const rows = await db.select().from(offersTable).where(eq(offersTable.id, id)).limit(1);
+  if (!rows.length) return res.status(404).json({ error: "Not found" });
+  const [offer] = await db.update(offersTable)
+    .set({ isActive: !rows[0].isActive })
+    .where(eq(offersTable.id, id))
+    .returning();
   return res.json(mapOffer(offer));
 });
 
@@ -361,6 +374,7 @@ function mapOffer(o: typeof offersTable.$inferSelect) {
     imageUrl: o.imageUrl ?? undefined,
     validUntil: o.validUntil?.toISOString() ?? undefined,
     code: o.code ?? undefined,
+    isActive: o.isActive,
   };
 }
 

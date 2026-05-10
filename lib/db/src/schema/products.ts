@@ -55,6 +55,7 @@ export const offersTable = pgTable("offers", {
   imageUrl: text("image_url"),
   validUntil: timestamp("valid_until"),
   code: text("code"),
+  isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
