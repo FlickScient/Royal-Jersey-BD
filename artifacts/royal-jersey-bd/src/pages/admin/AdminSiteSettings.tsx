@@ -11,6 +11,7 @@ import { Plus, Trash2, Save, Phone, Globe, ImageIcon, FileText, HelpCircle } fro
 import { useQueryClient } from "@tanstack/react-query";
 import { getAdminGetSiteSettingsQueryKey, getGetSiteSettingsQueryKey } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
+import ImageUploadWidget from "@/components/admin/ImageUploadWidget";
 
 export default function AdminSiteSettings() {
   const { data: settings, isLoading } = useAdminGetSiteSettings();
@@ -230,9 +231,13 @@ export default function AdminSiteSettings() {
                       <Label className="text-xs">Subtitle</Label>
                       <Input value={slide.subtitle} onChange={e => updateHeroSlide(i, "subtitle", e.target.value)} className="bg-background border-border/20 h-9" placeholder="AUTHENTIC FIT. ULTIMATE PERFORMANCE." />
                     </div>
-                    <div className="space-y-1.5 col-span-2">
-                      <Label className="text-xs">Background Image URL</Label>
-                      <Input value={slide.image} onChange={e => updateHeroSlide(i, "image", e.target.value)} className="bg-background border-border/20 h-9" placeholder="https://images.unsplash.com/..." />
+                    <div className="col-span-2">
+                      <ImageUploadWidget
+                        label="Background Image"
+                        value={slide.image}
+                        onChange={url => updateHeroSlide(i, "image", url)}
+                        height="h-28"
+                      />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs">Button Text</Label>
@@ -243,11 +248,6 @@ export default function AdminSiteSettings() {
                       <Input value={slide.link} onChange={e => updateHeroSlide(i, "link", e.target.value)} className="bg-background border-border/20 h-9" placeholder="/products" />
                     </div>
                   </div>
-                  {slide.image && (
-                    <div className="h-24 rounded overflow-hidden bg-muted">
-                      <img src={slide.image} alt="Preview" className="w-full h-full object-cover opacity-70" />
-                    </div>
-                  )}
                 </div>
               ))}
               <Button variant="outline" className="w-full border-dashed border-border/30 hover:border-primary/50" onClick={addHeroSlide}>
@@ -277,20 +277,13 @@ export default function AdminSiteSettings() {
                   { key: "edition_kid_image", label: "Kid Edition Image" },
                   { key: "edition_premium_image", label: "Premium Fabric Image" },
                 ].map(({ key, label }) => (
-                  <div key={key} className="space-y-2">
-                    <Label>{label}</Label>
-                    <Input
-                      value={editionImages[key as keyof typeof editionImages]}
-                      onChange={e => setEditionImages(p => ({ ...p, [key]: e.target.value }))}
-                      className="bg-background border-border/20"
-                      placeholder="https://..."
-                    />
-                    {editionImages[key as keyof typeof editionImages] && (
-                      <div className="h-24 rounded overflow-hidden bg-muted">
-                        <img src={editionImages[key as keyof typeof editionImages]} alt={label} className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                  </div>
+                  <ImageUploadWidget
+                    key={key}
+                    label={label}
+                    value={editionImages[key as keyof typeof editionImages]}
+                    onChange={url => setEditionImages(p => ({ ...p, [key]: url }))}
+                    height="h-28"
+                  />
                 ))}
               </div>
               <div className="flex justify-end pt-2">
@@ -311,20 +304,13 @@ export default function AdminSiteSettings() {
                 {[1, 2, 3, 4].map((n) => {
                   const key = `fabric_image_${n}` as keyof typeof fabricImages;
                   return (
-                    <div key={n} className="space-y-2">
-                      <Label>Fabric Image {n}</Label>
-                      <Input
-                        value={fabricImages[key]}
-                        onChange={e => setFabricImages(p => ({ ...p, [key]: e.target.value }))}
-                        className="bg-background border-border/20"
-                        placeholder="https://..."
-                      />
-                      {fabricImages[key] && (
-                        <div className="h-24 rounded overflow-hidden bg-muted">
-                          <img src={fabricImages[key]} alt={`Fabric ${n}`} className="w-full h-full object-cover" />
-                        </div>
-                      )}
-                    </div>
+                    <ImageUploadWidget
+                      key={n}
+                      label={`Fabric Image ${n}`}
+                      value={fabricImages[key]}
+                      onChange={url => setFabricImages(p => ({ ...p, [key]: url }))}
+                      height="h-28"
+                    />
                   );
                 })}
               </div>

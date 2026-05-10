@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { 
   useAdminListProducts, 
   useAdminCreateProduct, 
@@ -17,9 +17,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Upload, X, Image } from "lucide-react";
+import { Plus, Edit, Trash2, Image } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getAdminListProductsQueryKey, getListProductsQueryKey } from "@workspace/api-client-react";
+import ImageUploadWidget from "@/components/admin/ImageUploadWidget";
 
 export default function AdminProducts() {
   const { data: products, isLoading } = useAdminListProducts();
@@ -34,8 +35,6 @@ export default function AdminProducts() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<{
     name: string;
@@ -71,29 +70,9 @@ export default function AdminProducts() {
     teamName: ""
   });
 
-  const handleImageUpload = async (file: File) => {
-    setUploadingImage(true);
-    const preview = URL.createObjectURL(file);
-    setImagePreview(preview);
-    try {
-      const fd = new FormData();
-      fd.append("image", file);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
-      setFormData(prev => ({ ...prev, imageUrl: data.url }));
-    } catch {
-      setImagePreview(null);
-      alert("Image upload failed. Please try again.");
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   const handleOpenDialog = (product: Product | null = null) => {
     if (product) {
       setEditingProduct(product);
-      setImagePreview(product.imageUrl || null);
       setFormData({
         name: product.name,
         description: product.description || "",
@@ -113,7 +92,6 @@ export default function AdminProducts() {
       });
     } else {
       setEditingProduct(null);
-      setImagePreview(null);
       setFormData({
         name: "",
         description: "",
@@ -259,61 +237,14 @@ export default function AdminProducts() {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6 mt-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2 col-span-2">
-                <Label>Product Image</Label>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
-                  className="hidden"
-                  onChange={e => {
-                    const file = e.target.files?.[0];
-                    if (file) handleImageUpload(file);
-                  }}
+              <div className="col-span-2">
+                <Label className="mb-1.5 block">Product Image</Label>
+                <ImageUploadWidget
+                  value={formData.imageUrl}
+                  onChange={url => setFormData(prev => ({ ...prev, imageUrl: url }))}
+                  onUploadingChange={setUploadingImage}
+                  height="h-48"
                 />
-                {imagePreview ? (
-                  <div className="relative w-full h-48 rounded-lg overflow-hidden bg-muted border border-border/20">
-                    <img src={imagePreview} alt="Preview" className="w-full h-full object-contain" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setImagePreview(null);
-                        setFormData(prev => ({ ...prev, imageUrl: "" }));
-                        if (fileInputRef.current) fileInputRef.current.value = "";
-                      }}
-                      className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                    {uploadingImage && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      </div>
-                    )}
-                    {!uploadingImage && formData.imageUrl && (
-                      <div className="absolute bottom-2 left-2 text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">Uploaded</div>
-                    )}
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploadingImage}
-                    className="w-full h-48 rounded-lg border-2 border-dashed border-border/30 bg-background hover:border-primary/50 hover:bg-primary/5 transition-colors flex flex-col items-center justify-center gap-3 text-muted-foreground hover:text-primary"
-                  >
-                    {uploadingImage ? (
-                      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        <Upload className="w-8 h-8" />
-                        <div className="text-center">
-                          <p className="font-medium text-sm">Click to upload from gallery</p>
-                          <p className="text-xs mt-1">JPG, PNG, WebP up to 10MB</p>
-                        </div>
-                      </>
-                    )}
-                  </button>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -395,7 +326,7 @@ export default function AdminProducts() {
             <div className="flex justify-end gap-3 pt-6">
               <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
               <Button type="submit" disabled={createProduct.isPending || updateProduct.isPending || uploadingImage}>
-                {createProduct.isPending || updateProduct.isPending ? 'Saving...' : uploadingImage ? 'Uploading...' : 'Save Product'}
+                {uploadingImage ? 'Uploading...' : createProduct.isPending || updateProduct.isPending ? 'Saving...' : 'Save Product'}
               </Button>
             </div>
           </form>
