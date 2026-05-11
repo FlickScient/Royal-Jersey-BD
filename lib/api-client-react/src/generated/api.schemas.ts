@@ -16,7 +16,9 @@ export interface League {
   country?: string;
   logoUrl?: string;
   isInternational: boolean;
+  sortOrder?: number;
   productCount?: number;
+  createdAt?: string;
 }
 
 export type ProductEdition =
