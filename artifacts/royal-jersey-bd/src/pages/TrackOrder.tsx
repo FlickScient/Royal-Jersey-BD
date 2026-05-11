@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Search, Package, Truck, CheckCircle, Clock, MessageCircle, XCircle, Loader2 } from "lucide-react";
+import { Search, Package, Truck, CheckCircle, Clock, MessageCircle, XCircle, Loader2, AlertTriangle } from "lucide-react";
 import { useGetSiteSettings } from "@workspace/api-client-react";
 
 interface TrackingResult {
@@ -45,8 +45,13 @@ export default function TrackOrder() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
-  const { data: settings } = useGetSiteSettings();
 
+  // Cancel state
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+
+  const { data: settings } = useGetSiteSettings();
   const whatsappNumber = settings?.whatsapp_number ?? "+8801234567890";
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -55,6 +60,8 @@ export default function TrackOrder() {
     setSearched(true);
     setResult(null);
     setError(null);
+    setShowCancelConfirm(false);
+    setCancelError(null);
 
     try {
       const params = new URLSearchParams({ orderNumber: orderNumber.trim(), phone: phone.trim() });
@@ -70,6 +77,38 @@ export default function TrackOrder() {
       setError("Failed to connect to the server. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!result) return;
+    setCancelling(true);
+    setCancelError(null);
+
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(result.orderNumber)}/cancel`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phone.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCancelError(data.error ?? "Could not cancel order.");
+        setShowCancelConfirm(false);
+      } else {
+        // Update result with cancelled status
+        setResult(prev => prev ? {
+          ...prev,
+          status: "cancelled",
+          timeline: prev.timeline.map(t => ({ ...t, done: t.status === "pending" })),
+        } : null);
+        setShowCancelConfirm(false);
+      }
+    } catch {
+      setCancelError("Failed to connect. Please try again.");
+      setShowCancelConfirm(false);
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -210,12 +249,80 @@ export default function TrackOrder() {
                   </div>
                 </div>
 
-                <Button asChild variant="outline" className="w-full">
-                  <a href={waLink} target="_blank" rel="noopener noreferrer">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Need Help? Chat on WhatsApp
-                  </a>
-                </Button>
+                {/* Cancel error */}
+                {cancelError && (
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>{cancelError}</span>
+                  </div>
+                )}
+
+                {/* Cancel confirmation box */}
+                <AnimatePresence>
+                  {showCancelConfirm && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.97 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.97 }}
+                      className="p-5 rounded-xl border-2 border-destructive/30 bg-destructive/5 space-y-4"
+                    >
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-sm">Cancel this order?</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            This will permanently cancel order <span className="font-mono font-bold">{result.orderNumber}</span>. This action cannot be undone.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => setShowCancelConfirm(false)}
+                          disabled={cancelling}
+                        >
+                          Keep Order
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="flex-1"
+                          onClick={handleCancel}
+                          disabled={cancelling}
+                        >
+                          {cancelling ? (
+                            <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Cancelling...</>
+                          ) : (
+                            <><XCircle className="w-3.5 h-3.5 mr-1.5" /> Yes, Cancel Order</>
+                          )}
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button asChild variant="outline" className="flex-1">
+                    <a href={waLink} target="_blank" rel="noopener noreferrer">
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Need Help? Chat on WhatsApp
+                    </a>
+                  </Button>
+
+                  {/* Cancel button — only for pending orders */}
+                  {result.status === "pending" && !showCancelConfirm && (
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive"
+                      onClick={() => { setCancelError(null); setShowCancelConfirm(true); }}
+                    >
+                      <XCircle className="w-4 h-4 mr-2" />
+                      Cancel Order
+                    </Button>
+                  )}
+                </div>
               </div>
             ) : null}
           </motion.div>
