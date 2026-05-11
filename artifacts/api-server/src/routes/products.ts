@@ -26,6 +26,7 @@ function mapProduct(
     fabricType: p.fabricType ?? undefined,
     sizes: p.sizes ?? ["S", "M", "L", "XL", "XXL"],
     inStock: p.inStock,
+    stockCount: p.stockCount ?? undefined,
     isFeatured: p.isFeatured,
     isNew: p.isNew,
     discountPercent: p.discountPercent,
