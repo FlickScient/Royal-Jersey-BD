@@ -80,6 +80,20 @@ export async function initializeDatabase() {
       items_json TEXT NOT NULL DEFAULT '[]',
       created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
     );
+    CREATE TABLE IF NOT EXISTS cart_items (
+      id SERIAL PRIMARY KEY,
+      session_id TEXT NOT NULL,
+      product_id INTEGER NOT NULL REFERENCES products(id),
+      quantity INTEGER NOT NULL DEFAULT 1,
+      size TEXT,
+      created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS wishlist_items (
+      id SERIAL PRIMARY KEY,
+      session_id TEXT NOT NULL,
+      product_id INTEGER NOT NULL REFERENCES products(id),
+      created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    );
     CREATE TABLE IF NOT EXISTS site_settings (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL,
