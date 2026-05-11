@@ -45,6 +45,7 @@ export interface Product {
   fabricType?: string;
   sizes?: string[];
   inStock: boolean;
+  stockCount?: number;
   isFeatured?: boolean;
   isNew?: boolean;
   discountPercent?: number;
@@ -137,6 +138,7 @@ export interface AdminOrder {
   phone: string;
   address: string;
   notes?: string;
+  items?: CartItem[];
   createdAt?: string;
 }
 
@@ -162,6 +164,7 @@ export interface AdminProductBody {
   fabricType?: string;
   sizes?: string[];
   inStock: boolean;
+  stockCount?: number;
   isFeatured?: boolean;
   isNew?: boolean;
   discountPercent?: number;
