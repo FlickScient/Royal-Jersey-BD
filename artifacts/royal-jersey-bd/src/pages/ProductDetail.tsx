@@ -8,15 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import SizeGuide from "@/components/products/SizeGuide";
-import { Heart, ShoppingCart, ShieldCheck, Truck, RotateCcw, Star, Check, MessageCircle, Share2 } from "lucide-react";
+import { Heart, ShoppingCart, ShieldCheck, Truck, RotateCcw, Star, Check, MessageCircle, Share2, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const SAMPLE_REVIEWS = [
-  { name: "Rahim U.", rating: 5, date: "2 days ago", comment: "Best quality jersey I've ever bought in BD. The Lorex fabric is amazing, very smooth and the stitching is perfect. Delivered in 24 hours to Dhaka!", verified: true },
-  { name: "Karim H.", rating: 5, date: "1 week ago", comment: "Ordered for my whole team (12 jerseys). Got great discount, custom name printing was spot on. Will definitely order again.", verified: true },
-  { name: "Shakib M.", rating: 4, date: "2 weeks ago", comment: "Product is exactly as described. Sizing was a bit tight so I suggest going one size up for Player Edition. But quality is top notch.", verified: true },
-  { name: "Farhan A.", rating: 5, date: "3 weeks ago", comment: "Received same day (inside Dhaka). Packaging was nice, jersey looks premium. My son loves it!", verified: false },
-];
 
 export default function ProductDetail() {
   const params = useParams();
@@ -26,7 +19,7 @@ export default function ProductDetail() {
     query: { queryKey: getGetProductQueryKey(id), enabled: !!id }
   });
   
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
@@ -37,12 +30,20 @@ export default function ProductDetail() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (product?.imageUrl && !selectedImage) {
-      setSelectedImage(product.imageUrl);
-    }
     if (product?.sizes && product.sizes.length > 0 && !selectedSize) {
       setSelectedSize(product.sizes[0]);
     }
+  }, [product]);
+
+  // Auto-advance slideshow every 3s when multiple images exist
+  useEffect(() => {
+    if (!product) return;
+    const imgs = product.images?.length ? [product.imageUrl, ...product.images] : [product.imageUrl];
+    if (imgs.length < 2) return;
+    const interval = setInterval(() => {
+      setCurrentImageIndex(i => (i + 1) % imgs.length);
+    }, 3000);
+    return () => clearInterval(interval);
   }, [product]);
 
   useEffect(() => {
@@ -99,6 +100,7 @@ export default function ProductDetail() {
   }
 
   const allImages = product.images?.length ? [product.imageUrl, ...product.images] : [product.imageUrl];
+  const displayImage = allImages[currentImageIndex] ?? product.imageUrl;
   const inWishlist = isInWishlist(product.id);
 
   return (
@@ -114,24 +116,56 @@ export default function ProductDetail() {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Gallery */}
           <div className="space-y-4">
-            <div className="aspect-[4/5] bg-secondary rounded-lg overflow-hidden relative">
-              <img 
-                src={selectedImage || product.imageUrl} 
-                alt={product.name} 
-                className="w-full h-full object-cover"
-              />
+            <div className="aspect-[4/5] bg-secondary rounded-lg overflow-hidden relative group">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={currentImageIndex}
+                  src={displayImage}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                />
+              </AnimatePresence>
               <div className="absolute top-4 left-4 flex flex-col gap-2">
                 {product.isNew && <Badge className="bg-primary text-primary-foreground border-none">NEW</Badge>}
-                {product.discountPercent && <Badge className="bg-accent text-accent-foreground border-none">-{product.discountPercent}%</Badge>}
+                {product.discountPercent ? <Badge className="bg-accent text-accent-foreground border-none">-{product.discountPercent}%</Badge> : null}
               </div>
+              {allImages.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setCurrentImageIndex(i => (i - 1 + allImages.length) % allImages.length)}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setCurrentImageIndex(i => (i + 1) % allImages.length)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {allImages.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentImageIndex(i)}
+                        className={`w-1.5 h-1.5 rounded-full transition-all ${i === currentImageIndex ? "bg-white w-4" : "bg-white/50"}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
             {allImages.length > 1 && (
               <div className="grid grid-cols-4 gap-4">
                 {allImages.map((img, i) => (
                   <button 
                     key={i}
-                    onClick={() => setSelectedImage(img)}
-                    className={`aspect-[4/5] rounded-md overflow-hidden border-2 transition-all ${selectedImage === img ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'}`}
+                    onClick={() => setCurrentImageIndex(i)}
+                    className={`aspect-[4/5] rounded-md overflow-hidden border-2 transition-all ${currentImageIndex === i ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'}`}
                   >
                     <img src={img} alt={`${product.name} ${i}`} className="w-full h-full object-cover" />
                   </button>
@@ -152,10 +186,26 @@ export default function ProductDetail() {
                 </div>
               </div>
               <h1 className="text-3xl md:text-5xl font-serif font-bold leading-tight mb-4">{product.name}</h1>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
                 <span className="font-serif font-bold text-3xl">৳{product.price.toFixed(2)}</span>
                 {product.originalPrice && (
                   <span className="text-xl text-muted-foreground line-through">৳{product.originalPrice.toFixed(2)}</span>
+                )}
+                {/* Stock indicator */}
+                {product.stockCount != null ? (
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold border ${
+                    product.stockCount === 0
+                      ? "bg-red-500/10 text-red-500 border-red-500/20"
+                      : product.stockCount <= 5
+                        ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+                        : "bg-green-500/10 text-green-600 border-green-500/20"
+                  }`}>
+                    {product.stockCount === 0 ? "Out of Stock" : `${product.stockCount} in stock`}
+                  </span>
+                ) : (
+                  <span className={`inline-flex items-center gap-1 text-sm font-semibold ${product.inStock ? "text-green-600" : "text-red-500"}`}>
+                    {product.inStock ? <><Check className="w-4 h-4" /> In Stock</> : "Out of Stock"}
+                  </span>
                 )}
               </div>
             </div>
@@ -253,79 +303,39 @@ export default function ProductDetail() {
         </div>
       </div>
 
-        {/* Customer Reviews */}
+      {/* Reviews Section */}
       <section className="container mx-auto px-4 py-12 border-t mt-12">
         <div className="max-w-2xl">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl font-serif font-bold mb-1">Customer Reviews</h2>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center">
-                  {[1,2,3,4,5].map(s => (
-                    <Star key={s} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <span className="font-bold">4.8</span>
-                <span className="text-muted-foreground text-sm">({SAMPLE_REVIEWS.length + (product.reviewCount || 0)} reviews)</span>
-              </div>
+          <h2 className="text-2xl font-serif font-bold mb-6">Customer Reviews</h2>
+
+          <div className="p-6 rounded-xl border bg-muted/20 text-center space-y-4">
+            <div className="flex justify-center gap-1">
+              {[1,2,3,4,5].map(s => (
+                <Star key={s} className="w-6 h-6 text-muted-foreground/30" />
+              ))}
             </div>
+            <p className="text-muted-foreground text-sm">
+              Be the first to review this product.
+            </p>
             <a
-              href={`https://wa.me/+8801234567890?text=Hi, I want to review product: ${encodeURIComponent(product.name)}`}
+              href={`https://wa.me/+8801234567890?text=${encodeURIComponent(`Hi! I want to leave a review for: ${product.name}`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline flex items-center gap-1"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#25D366] text-white text-sm font-semibold hover:bg-[#1ea855] transition-colors"
             >
               <MessageCircle className="w-4 h-4" />
-              Write a Review
+              Write a Review on WhatsApp
             </a>
           </div>
 
-          <div className="space-y-5">
-            {SAMPLE_REVIEWS.map((review, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="p-5 rounded-lg border bg-card"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary text-sm">
-                      {review.name[0]}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm">{review.name}</span>
-                        {review.verified && (
-                          <span className="text-xs text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                            <Check className="w-3 h-3" /> Verified
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        {[1,2,3,4,5].map(s => (
-                          <Star key={s} className={`w-3 h-3 ${s <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{review.date}</span>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
-              </motion.div>
-            ))}
-          </div>
-
           {/* Share */}
-          <div className="mt-8 p-5 rounded-lg bg-muted/30 border flex items-center justify-between gap-4 flex-wrap">
+          <div className="mt-6 p-5 rounded-lg bg-muted/30 border flex items-center justify-between gap-4 flex-wrap">
             <div>
               <p className="font-medium text-sm">Love this product?</p>
               <p className="text-xs text-muted-foreground">Share it with your friends on WhatsApp</p>
             </div>
             <a
-              href={`https://wa.me/?text=${encodeURIComponent(`Check out ${product.name} at Royal Jersey BD! 🔥 ৳${product.price} — ${window.location.href}`)}`}
+              href={`https://wa.me/?text=${encodeURIComponent(`Check out ${product.name} at Royal Jersey BD! 🔥 ৳${product.price} — ${typeof window !== "undefined" ? window.location.href : ""}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#25D366] text-white text-sm font-medium hover:bg-[#1ea855] transition-colors"
