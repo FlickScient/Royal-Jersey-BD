@@ -1,11 +1,10 @@
 import { useState, useMemo } from "react";
-import { useAdminListOrders, useAdminUpdateOrderStatus, AdminOrder } from "@workspace/api-client-react";
+import { useAdminListOrders, getAdminListOrdersQueryKey } from "@workspace/api-client-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useQueryClient } from "@tanstack/react-query";
-import { getAdminListOrdersQueryKey } from "@workspace/api-client-react";
 import { ChevronDown, ChevronUp, Search, MessageCircle } from "lucide-react";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -28,12 +27,26 @@ const PAYMENT_LABELS: Record<string, string> = {
 
 export default function AdminOrders() {
   const { data: orders, isLoading } = useAdminListOrders();
-  const updateStatus = useAdminUpdateOrderStatus();
   const queryClient = useQueryClient();
 
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  const updateStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      const res = await fetch(`/api/admin/orders/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error("Failed to update status");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getAdminListOrdersQueryKey() });
+    },
+  });
 
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
@@ -56,17 +69,10 @@ export default function AdminOrders() {
   const pendingCount = orders?.filter(o => o.status === "pending").length ?? 0;
 
   const handleStatusChange = (orderId: number, status: string) => {
-    updateStatus.mutate(
-      { id: orderId, data: { status } },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getAdminListOrdersQueryKey() });
-        }
-      }
-    );
+    updateStatus.mutate({ id: orderId, status });
   };
 
-  const getWhatsAppLink = (order: AdminOrder) => {
+  const getWhatsAppLink = (order: { phone: string; customerName: string; orderNumber: string; status: string }) => {
     const phone = order.phone.replace(/\D/g, "");
     const msg = encodeURIComponent(
       `Hello ${order.customerName}, your Royal Jersey BD order #${order.orderNumber} status has been updated to: ${order.status.toUpperCase()}. Thank you for shopping with us!`
