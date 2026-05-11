@@ -324,3 +324,21 @@
     inset: -1px;
   }
 }
+/* ─── Light mode: force readable text inside hardcoded dark sections ───────── */
+/* Admin tables and expanded rows use bg-[#111]/bg-[#0d0d0d] which are always
+   dark. Override CSS vars inside them so text remains white in light mode too. */
+:root:not(.dark) .bg-\[\#111\],
+:root:not(.dark) .bg-\[\#0d0d0d\] {
+  --foreground: 0 0% 93%;
+  --card-foreground: 0 0% 93%;
+  --muted-foreground: 0 0% 62%;
+  --border: 0 0% 22%;
+  color: hsl(0 0% 93%);
+}
+
+/* Dialog inside dark bg */
+:root:not(.dark) .bg-\[\#111\] input,
+:root:not(.dark) .bg-\[\#111\] textarea,
+:root:not(.dark) .bg-\[\#111\] [class*="bg-white\/5"] {
+  color: white;
+}
