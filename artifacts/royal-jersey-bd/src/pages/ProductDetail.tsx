@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "wouter";
-import { useGetProduct, useAddToCart, getGetCartQueryKey, getGetProductQueryKey } from "@workspace/api-client-react";
+import { useGetProduct, useAddToCart, useListProducts, getGetCartQueryKey, getGetProductQueryKey } from "@workspace/api-client-react";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useQueryClient } from "@tanstack/react-query";
@@ -8,32 +8,50 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import SizeGuide from "@/components/products/SizeGuide";
+import ProductCard from "@/components/products/ProductCard";
 import { Heart, ShoppingCart, ShieldCheck, Truck, RotateCcw, Star, Check, MessageCircle, Share2, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ProductDetail() {
   const params = useParams();
   const id = parseInt(params.id || "0");
-  
+
   const { data: product, isLoading } = useGetProduct(id, {
     query: { queryKey: getGetProductQueryKey(id), enabled: !!id }
   });
-  
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
   const [showStickyAtc, setShowStickyAtc] = useState(false);
-  
+
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { openCart } = useCart();
   const queryClient = useQueryClient();
+
+  // Related products — same category, exclude current
+  const { data: allInCategory } = useListProducts(
+    { categoryId: product?.categoryId },
+    { query: { enabled: !!product?.categoryId } }
+  );
+  const relatedProducts = allInCategory?.filter(p => p.id !== id).slice(0, 8) ?? [];
+
+  // Featured products as fallback / secondary section
+  const { data: featuredProducts } = useListProducts(
+    {},
+    { query: { enabled: !!product } }
+  );
+  const bestDeals = featuredProducts
+    ?.filter(p => p.id !== id && (p.discountPercent ?? 0) > 0)
+    .slice(0, 8) ?? [];
 
   useEffect(() => {
     if (product?.sizes && product.sizes.length > 0 && !selectedSize) {
       setSelectedSize(product.sizes[0]);
     }
-  }, [product]);
+    setCurrentImageIndex(0);
+  }, [product?.id]);
 
   // Auto-advance slideshow every 3s when multiple images exist
   useEffect(() => {
@@ -72,11 +90,7 @@ export default function ProductDetail() {
   const handleAddToCart = () => {
     if (!product) return;
     addToCart.mutate({
-      data: {
-        productId: product.id,
-        quantity,
-        size: selectedSize
-      }
+      data: { productId: product.id, quantity, size: selectedSize }
     });
   };
 
@@ -152,7 +166,7 @@ export default function ProductDetail() {
                       <button
                         key={i}
                         onClick={() => setCurrentImageIndex(i)}
-                        className={`w-1.5 h-1.5 rounded-full transition-all ${i === currentImageIndex ? "bg-white w-4" : "bg-white/50"}`}
+                        className={`h-1.5 rounded-full transition-all ${i === currentImageIndex ? "bg-white w-4" : "bg-white/50 w-1.5"}`}
                       />
                     ))}
                   </div>
@@ -162,7 +176,7 @@ export default function ProductDetail() {
             {allImages.length > 1 && (
               <div className="grid grid-cols-4 gap-4">
                 {allImages.map((img, i) => (
-                  <button 
+                  <button
                     key={i}
                     onClick={() => setCurrentImageIndex(i)}
                     className={`aspect-[4/5] rounded-md overflow-hidden border-2 transition-all ${currentImageIndex === i ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'}`}
@@ -191,7 +205,6 @@ export default function ProductDetail() {
                 {product.originalPrice && (
                   <span className="text-xl text-muted-foreground line-through">৳{product.originalPrice.toFixed(2)}</span>
                 )}
-                {/* Stock indicator */}
                 {product.stockCount != null ? (
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold border ${
                     product.stockCount === 0
@@ -215,7 +228,6 @@ export default function ProductDetail() {
             </div>
 
             <div className="space-y-8 mb-8 border-y py-8">
-              {/* Sizes */}
               {product.sizes && product.sizes.length > 0 && (
                 <div>
                   <div className="flex justify-between items-center mb-3">
@@ -228,8 +240,8 @@ export default function ProductDetail() {
                         key={size}
                         onClick={() => setSelectedSize(size)}
                         className={`h-12 px-6 rounded-md border text-sm font-bold transition-all ${
-                          selectedSize === size 
-                            ? "border-primary bg-primary text-primary-foreground shadow-md" 
+                          selectedSize === size
+                            ? "border-primary bg-primary text-primary-foreground shadow-md"
                             : "border-border bg-background hover:border-primary/50 text-muted-foreground hover:text-foreground"
                         }`}
                       >
@@ -240,21 +252,15 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex items-center border rounded-md h-14 bg-background">
-                  <Button variant="ghost" className="h-full px-4 rounded-none hover:bg-muted" onClick={() => setQuantity(q => Math.max(1, q - 1))}>
-                    -
-                  </Button>
+                  <Button variant="ghost" className="h-full px-4 rounded-none hover:bg-muted" onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</Button>
                   <span className="w-12 text-center font-bold text-lg">{quantity}</span>
-                  <Button variant="ghost" className="h-full px-4 rounded-none hover:bg-muted" onClick={() => setQuantity(q => q + 1)}>
-                    +
-                  </Button>
+                  <Button variant="ghost" className="h-full px-4 rounded-none hover:bg-muted" onClick={() => setQuantity(q => q + 1)}>+</Button>
                 </div>
-                
-                <Button 
+                <Button
                   id="main-atc-button"
-                  size="lg" 
+                  size="lg"
                   className="flex-1 h-14 text-lg font-bold shadow-lg"
                   onClick={handleAddToCart}
                   disabled={!product.inStock || addToCart.isPending}
@@ -263,25 +269,16 @@ export default function ProductDetail() {
                     <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="flex items-center gap-2">
                       <Check className="w-6 h-6 text-green-500" /> Added to Cart
                     </motion.div>
-                  ) : !product.inStock ? (
-                    "Out of Stock"
-                  ) : (
+                  ) : !product.inStock ? "Out of Stock" : (
                     <span className="flex items-center gap-2"><ShoppingCart className="w-5 h-5" /> Add to Cart</span>
                   )}
                 </Button>
-
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="h-14 w-14 flex-shrink-0 border-2"
-                  onClick={() => toggleWishlist(product.id)}
-                >
+                <Button size="icon" variant="outline" className="h-14 w-14 flex-shrink-0 border-2" onClick={() => toggleWishlist(product.id)}>
                   <Heart className={`w-6 h-6 transition-colors ${inWishlist ? "fill-accent text-accent" : "text-muted-foreground"}`} />
                 </Button>
               </div>
             </div>
 
-            {/* Features */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
               <div className="flex flex-col items-center text-center gap-2 p-4 bg-muted/30 rounded-lg">
                 <ShieldCheck className="w-6 h-6 text-primary" />
@@ -303,20 +300,57 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* Reviews Section */}
-      <section className="container mx-auto px-4 py-12 border-t mt-12">
+      {/* ── More from this Category ──────────────────────────────────────── */}
+      {relatedProducts.length > 0 && (
+        <section className="container mx-auto px-4 py-12 border-t mt-4">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <p className="text-xs font-bold text-primary tracking-widest uppercase mb-1">Same Collection</p>
+              <h2 className="text-2xl md:text-3xl font-serif font-bold">More {product.categoryName}</h2>
+            </div>
+            <Link href={`/products?categoryId=${product.categoryId}`} className="text-sm text-primary hover:underline font-medium">
+              View All →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {relatedProducts.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── Best Deals ───────────────────────────────────────────────────── */}
+      {bestDeals.length > 0 && (
+        <section className="container mx-auto px-4 py-12 border-t">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <p className="text-xs font-bold text-primary tracking-widest uppercase mb-1">Limited Time</p>
+              <h2 className="text-2xl md:text-3xl font-serif font-bold">Best Deals</h2>
+            </div>
+            <Link href="/products" className="text-sm text-primary hover:underline font-medium">
+              View All →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {bestDeals.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── Reviews & Share ─────────────────────────────────────────────── */}
+      <section className="container mx-auto px-4 py-12 border-t">
         <div className="max-w-2xl">
           <h2 className="text-2xl font-serif font-bold mb-6">Customer Reviews</h2>
-
           <div className="p-6 rounded-xl border bg-muted/20 text-center space-y-4">
             <div className="flex justify-center gap-1">
               {[1,2,3,4,5].map(s => (
                 <Star key={s} className="w-6 h-6 text-muted-foreground/30" />
               ))}
             </div>
-            <p className="text-muted-foreground text-sm">
-              Be the first to review this product.
-            </p>
+            <p className="text-muted-foreground text-sm">Be the first to review this product.</p>
             <a
               href={`https://wa.me/+8801234567890?text=${encodeURIComponent(`Hi! I want to leave a review for: ${product.name}`)}`}
               target="_blank"
@@ -327,8 +361,6 @@ export default function ProductDetail() {
               Write a Review on WhatsApp
             </a>
           </div>
-
-          {/* Share */}
           <div className="mt-6 p-5 rounded-lg bg-muted/30 border flex items-center justify-between gap-4 flex-wrap">
             <div>
               <p className="font-medium text-sm">Love this product?</p>
@@ -364,10 +396,9 @@ export default function ProductDetail() {
                   <p className="text-primary font-serif font-bold">৳{product.price.toFixed(2)}</p>
                 </div>
               </div>
-              
               <div className="flex items-center gap-4 w-full md:w-auto">
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="flex-1 md:w-64 h-12 text-base font-bold shadow-lg"
                   onClick={handleAddToCart}
                   disabled={!product.inStock || addToCart.isPending}
