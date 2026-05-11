@@ -21,6 +21,7 @@ export interface Product {
   fabricType?: string;
   sizes?: string[];
   inStock: boolean;
+  stockCount?: number;
   isFeatured?: boolean;
   isNew?: boolean;
   discountPercent?: number;
