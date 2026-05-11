@@ -77,3 +77,19 @@ export const siteSettingsTable = pgTable("site_settings", {
   value: text("value").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+export const cartItemsTable = pgTable("cart_items", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  productId: integer("product_id").notNull().references(() => productsTable.id),
+  quantity: integer("quantity").notNull().default(1),
+  size: text("size"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const wishlistItemsTable = pgTable("wishlist_items", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  productId: integer("product_id").notNull().references(() => productsTable.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
