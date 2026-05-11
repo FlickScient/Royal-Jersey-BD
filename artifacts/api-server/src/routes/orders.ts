@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { ordersTable } from "@workspace/db";
 import { CreateOrderBody } from "@workspace/api-zod";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 const router = Router();
 
@@ -94,6 +94,53 @@ router.get("/orders/track", async (req, res) => {
     createdAt: order.createdAt.toISOString(),
     timeline,
   });
+});
+
+router.patch("/orders/:orderNumber/cancel", async (req, res) => {
+  const { orderNumber } = req.params;
+  const { phone } = req.body;
+
+  if (!phone) {
+    return res.status(400).json({ error: "Phone number is required for verification" });
+  }
+
+  const rows = await db
+    .select()
+    .from(ordersTable)
+    .where(eq(ordersTable.orderNumber, orderNumber.trim()))
+    .limit(1);
+
+  if (!rows.length) {
+    return res.status(404).json({ error: "Order not found" });
+  }
+
+  const order = rows[0];
+
+  // Verify phone matches the order
+  const cleanPhone = String(phone).replace(/[\s\-]/g, "");
+  const orderPhone = order.phone.replace(/[\s\-]/g, "");
+  if (!orderPhone.endsWith(cleanPhone) && !cleanPhone.endsWith(orderPhone)) {
+    return res.status(403).json({ error: "Phone number does not match this order" });
+  }
+
+  // Only pending orders can be cancelled
+  if (order.status !== "pending") {
+    const msg: Record<string, string> = {
+      processing: "Your order is already being processed and cannot be cancelled. Please contact us on WhatsApp.",
+      shipped: "Your order has already been shipped. Please contact us on WhatsApp to arrange a return.",
+      delivered: "Your order has been delivered and cannot be cancelled.",
+      cancelled: "This order is already cancelled.",
+    };
+    return res.status(400).json({ error: msg[order.status] ?? "This order cannot be cancelled." });
+  }
+
+  const [updated] = await db
+    .update(ordersTable)
+    .set({ status: "cancelled" })
+    .where(eq(ordersTable.orderNumber, orderNumber.trim()))
+    .returning();
+
+  return res.json({ success: true, status: updated.status });
 });
 
 export default router;
