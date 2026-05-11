@@ -1,6 +1,4 @@
 import { pgTable, serial, text, decimal, integer, boolean, timestamp, pgEnum } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
 
 export const editionEnum = pgEnum("edition", ["player", "fan", "kid", "premium"]);
 
@@ -39,6 +37,7 @@ export const productsTable = pgTable("products", {
   fabricType: text("fabric_type"),
   sizes: text("sizes").array(),
   inStock: boolean("in_stock").notNull().default(true),
+  stockCount: integer("stock_count"),
   isFeatured: boolean("is_featured").notNull().default(false),
   isNew: boolean("is_new").notNull().default(false),
   discountPercent: integer("discount_percent").notNull().default(0),
@@ -59,33 +58,17 @@ export const offersTable = pgTable("offers", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const cartItemsTable = pgTable("cart_items", {
-  id: serial("id").primaryKey(),
-  sessionId: text("session_id").notNull(),
-  productId: integer("product_id").notNull().references(() => productsTable.id),
-  quantity: integer("quantity").notNull().default(1),
-  size: text("size"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const wishlistItemsTable = pgTable("wishlist_items", {
-  id: serial("id").primaryKey(),
-  sessionId: text("session_id").notNull(),
-  productId: integer("product_id").notNull().references(() => productsTable.id),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
 export const ordersTable = pgTable("orders", {
   id: serial("id").primaryKey(),
   orderNumber: text("order_number").notNull().unique(),
   status: text("status").notNull().default("pending"),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
-  paymentMethod: text("payment_method").notNull(),
+  paymentMethod: text("payment_method"),
   customerName: text("customer_name").notNull(),
   phone: text("phone").notNull(),
   address: text("address").notNull(),
   notes: text("notes"),
-  itemsJson: text("items_json").notNull(),
+  itemsJson: text("items_json").notNull().default("[]"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -94,20 +77,3 @@ export const siteSettingsTable = pgTable("site_settings", {
   value: text("value").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
-
-export const insertCategorySchema = createInsertSchema(categoriesTable).omit({ id: true, createdAt: true });
-export const insertProductSchema = createInsertSchema(productsTable).omit({ id: true, createdAt: true });
-export const insertOfferSchema = createInsertSchema(offersTable).omit({ id: true, createdAt: true });
-export const insertLeagueSchema = createInsertSchema(leaguesTable).omit({ id: true, createdAt: true });
-
-export type League = typeof leaguesTable.$inferSelect;
-export type Category = typeof categoriesTable.$inferSelect;
-export type Product = typeof productsTable.$inferSelect;
-export type Offer = typeof offersTable.$inferSelect;
-export type CartItem = typeof cartItemsTable.$inferSelect;
-export type WishlistItem = typeof wishlistItemsTable.$inferSelect;
-export type Order = typeof ordersTable.$inferSelect;
-export type SiteSetting = typeof siteSettingsTable.$inferSelect;
-export type InsertCategory = z.infer<typeof insertCategorySchema>;
-export type InsertProduct = z.infer<typeof insertProductSchema>;
-export type InsertLeague = z.infer<typeof insertLeagueSchema>;
