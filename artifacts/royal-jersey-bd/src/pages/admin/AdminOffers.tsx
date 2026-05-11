@@ -50,7 +50,7 @@ export default function AdminOffers() {
         imageUrl: offer.imageUrl || "",
         validUntil: offer.validUntil ? new Date(offer.validUntil).toISOString().slice(0, 16) : "",
         code: offer.code || "",
-        isActive: (offer as any).isActive !== undefined ? (offer as any).isActive : true,
+        isActive: offer.isActive !== undefined ? offer.isActive : true,
       });
     } else {
       setEditingOffer(null);
@@ -72,7 +72,7 @@ export default function AdminOffers() {
     try {
       await fetch(`/api/admin/offers/${offer.id}/toggle`, { method: "PATCH" });
       queryClient.invalidateQueries({ queryKey: getAdminListOffersQueryKey() });
-      toast.success(`Offer ${(offer as any).isActive ? "hidden" : "shown"} successfully`);
+      toast.success(`Offer ${offer.isActive ? "hidden" : "shown"} successfully`);
     } catch {
       toast.error("Failed to toggle offer");
     } finally {
@@ -176,13 +176,13 @@ export default function AdminOffers() {
                     onClick={() => handleToggle(offer)}
                     disabled={togglingId === offer.id}
                     className={`flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full transition-colors ${
-                      (offer as any).isActive
+                      offer.isActive
                         ? "bg-green-500/15 text-green-400 hover:bg-green-500/25"
                         : "bg-white/5 text-muted-foreground hover:bg-white/10"
                     }`}
                   >
-                    {(offer as any).isActive ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                    {(offer as any).isActive ? "Active" : "Hidden"}
+                    {offer.isActive ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                    {offer.isActive ? "Active" : "Hidden"}
                   </button>
                 </TableCell>
                 <TableCell className="text-right space-x-2">

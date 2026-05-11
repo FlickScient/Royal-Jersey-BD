@@ -39,6 +39,7 @@ import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminOffers from "@/pages/admin/AdminOffers";
 import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminCategories from "@/pages/admin/AdminCategories";
+import AdminLeagues from "@/pages/admin/AdminLeagues";
 import AdminSiteSettings from "@/pages/admin/AdminSiteSettings";
 
 const queryClient = new QueryClient({
@@ -174,6 +175,11 @@ function Router() {
       <Route path="/admin/orders">
         <AdminLayout>
           <AdminOrders />
+        </AdminLayout>
+      </Route>
+      <Route path="/admin/leagues">
+        <AdminLayout>
+          <AdminLeagues />
         </AdminLayout>
       </Route>
       <Route path="/admin/settings">

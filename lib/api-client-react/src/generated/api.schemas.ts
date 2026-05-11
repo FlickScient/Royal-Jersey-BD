@@ -93,6 +93,7 @@ export interface Offer {
   imageUrl?: string;
   validUntil?: string;
   code?: string;
+  isActive?: boolean;
 }
 
 export type CreateOrderBodyPaymentMethod =

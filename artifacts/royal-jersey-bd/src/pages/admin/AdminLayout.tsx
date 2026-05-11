@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Package, Tag, ShoppingCart, LogOut, Copy, CheckCircle, Shield, ExternalLink, FolderOpen, Settings, Menu, X } from "lucide-react";
+import { LayoutDashboard, Package, Tag, ShoppingCart, LogOut, Copy, CheckCircle, Shield, ExternalLink, FolderOpen, Settings, Menu, X, Trophy } from "lucide-react";
 import { useAdminMe } from "@/hooks/useAdminMe";
 import { useClerk } from "@clerk/react";
 import { Button } from "@/components/ui/button";
@@ -111,6 +111,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Products", href: "/admin/products", icon: Package },
     { name: "Categories", href: "/admin/categories", icon: FolderOpen },
+    { name: "Leagues", href: "/admin/leagues", icon: Trophy },
     { name: "Offers", href: "/admin/offers", icon: Tag },
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { name: "Site Settings", href: "/admin/settings", icon: Settings },

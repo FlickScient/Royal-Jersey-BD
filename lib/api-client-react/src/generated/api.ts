@@ -2398,6 +2398,7 @@ export const adminUpdateSiteSettings = async (
   return customFetch<SiteSettings>(getAdminGetSiteSettingsUrl(), {
     ...options,
     method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
     body: JSON.stringify(data),
   });
 };

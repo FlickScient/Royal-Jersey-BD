@@ -330,6 +330,63 @@ router.patch("/admin/orders/:id/status", requireAdmin, async (req, res) => {
   return res.json(mapOrder(order, true));
 });
 
+// ─── Leagues ─────────────────────────────────────────────────────────────────
+
+router.get("/admin/leagues", requireAdmin, async (_req, res) => {
+  const rows = await db
+    .select({
+      id: leaguesTable.id,
+      name: leaguesTable.name,
+      slug: leaguesTable.slug,
+      country: leaguesTable.country,
+      logoUrl: leaguesTable.logoUrl,
+      isInternational: leaguesTable.isInternational,
+      sortOrder: leaguesTable.sortOrder,
+      createdAt: leaguesTable.createdAt,
+    })
+    .from(leaguesTable)
+    .orderBy(leaguesTable.sortOrder, leaguesTable.name);
+  return res.json(rows.map(mapLeague));
+});
+
+router.post("/admin/leagues", requireAdmin, async (req, res) => {
+  const body = req.body;
+  const [league] = await db.insert(leaguesTable).values({
+    name: body.name,
+    slug: body.slug,
+    country: body.country ?? null,
+    logoUrl: body.logoUrl ?? null,
+    isInternational: body.isInternational ?? false,
+    sortOrder: body.sortOrder ?? 0,
+  }).returning();
+  return res.status(201).json(mapLeague(league));
+});
+
+router.put("/admin/leagues/:id", requireAdmin, async (req, res) => {
+  const id = parseInt(req.params.id);
+  const body = req.body;
+  const [league] = await db.update(leaguesTable).set({
+    name: body.name,
+    slug: body.slug,
+    country: body.country ?? null,
+    logoUrl: body.logoUrl ?? null,
+    isInternational: body.isInternational ?? false,
+    sortOrder: body.sortOrder ?? 0,
+  }).where(eq(leaguesTable.id, id)).returning();
+  if (!league) return res.status(404).json({ error: "Not found" });
+  return res.json(mapLeague(league));
+});
+
+router.delete("/admin/leagues/:id", requireAdmin, async (req, res) => {
+  const id = parseInt(req.params.id);
+  const products = await db.select({ id: productsTable.id }).from(productsTable).where(eq(productsTable.leagueId, id)).limit(1);
+  if (products.length > 0) {
+    return res.status(400).json({ error: "Cannot delete league with existing products. Remove or reassign products first." });
+  }
+  await db.delete(leaguesTable).where(eq(leaguesTable.id, id));
+  return res.json({ success: true });
+});
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function mapProduct(
@@ -362,6 +419,19 @@ function mapProduct(
     leagueLogoUrl: leagueLogoUrl ?? undefined,
     teamName: p.teamName ?? undefined,
     createdAt: p.createdAt.toISOString(),
+  };
+}
+
+function mapLeague(l: typeof leaguesTable.$inferSelect) {
+  return {
+    id: l.id,
+    name: l.name,
+    slug: l.slug,
+    country: l.country ?? undefined,
+    logoUrl: l.logoUrl ?? undefined,
+    isInternational: l.isInternational,
+    sortOrder: l.sortOrder,
+    createdAt: l.createdAt.toISOString(),
   };
 }
 
