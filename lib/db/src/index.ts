@@ -111,6 +111,7 @@ export async function initializeDatabase() {
     ALTER TABLE products ADD COLUMN IF NOT EXISTS discount_percent INTEGER NOT NULL DEFAULT 0;
     ALTER TABLE products ADD COLUMN IF NOT EXISTS tags TEXT[];
     ALTER TABLE products ADD COLUMN IF NOT EXISTS variant_prices TEXT;
+    ALTER TABLE products ADD COLUMN IF NOT EXISTS video_url TEXT;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS items_json TEXT NOT NULL DEFAULT '[]';
   `);
