@@ -45,6 +45,7 @@ export const productsTable = pgTable("products", {
   reviewCount: integer("review_count").notNull().default(0),
   tags: text("tags").array(),
   variantPrices: text("variant_prices"),
+  videoUrl: text("video_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
