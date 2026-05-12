@@ -31,6 +31,7 @@ interface FormData {
   originalPrice: string;
   imageUrl: string;
   additionalImages: string[];
+  videoUrl: string;
   categoryId: string;
   edition: AdminProductBodyEdition;
   fabricType: string;
@@ -50,7 +51,7 @@ interface FormData {
 
 const EMPTY_FORM: FormData = {
   name: "", description: "", price: "", originalPrice: "",
-  imageUrl: "", additionalImages: [],
+  imageUrl: "", additionalImages: [], videoUrl: "",
   categoryId: "", edition: AdminProductBodyEdition.fan,
   fabricType: "", sizes: "S,M,L,XL,XXL",
   inStock: true, stockCount: "",
@@ -104,6 +105,7 @@ export default function AdminProducts() {
         variantPlayer: vp["player"] ? String(vp["player"]) : "",
         variantFan: vp["fan"] ? String(vp["fan"]) : "",
         variantThaiBD: vp["thai-bd"] ? String(vp["thai-bd"]) : "",
+        videoUrl: p.videoUrl ?? "",
       });
     } else {
       setEditingProduct(null);
@@ -141,6 +143,7 @@ export default function AdminProducts() {
       teamName: formData.teamName,
       tags: formData.tags ? formData.tags.split(",").map(t => t.trim()).filter(Boolean) : [],
       variantPrices: Object.keys(variantPricesObj).length > 0 ? JSON.stringify(variantPricesObj) : undefined,
+      videoUrl: formData.videoUrl.trim() || undefined,
     };
 
     const onSuccess = () => {
@@ -265,6 +268,24 @@ export default function AdminProducts() {
                   onUploadingChange={setUploadingImage}
                   height="h-48"
                 />
+              </div>
+
+              {/* ── Fabric Shine Video URL ──────────────────────────── */}
+              <div className="col-span-2 p-4 rounded-lg border border-border/20 bg-white/3 space-y-2">
+                <Label className="text-gray-300 font-semibold block">
+                  Fabric Shine Video <span className="text-xs text-gray-500 font-normal">(optional — plays on hover in product card)</span>
+                </Label>
+                <Input
+                  type="url"
+                  value={formData.videoUrl}
+                  onChange={e => set({ videoUrl: e.target.value })}
+                  placeholder="https://res.cloudinary.com/.../fabric-loop.mp4"
+                  className="bg-white/5 border-border/20 text-white placeholder:text-gray-500"
+                />
+                <p className="text-xs text-gray-500">Upload a short 5-second looping MP4 to Cloudinary and paste the URL here. Customers will see it on hover to feel the fabric shine.</p>
+                {formData.videoUrl && (
+                  <video src={formData.videoUrl} muted loop playsInline autoPlay className="mt-2 h-20 rounded-md object-cover border border-border/20" />
+                )}
               </div>
 
               {/* ── Additional Photos ───────────────────────────────── */}
