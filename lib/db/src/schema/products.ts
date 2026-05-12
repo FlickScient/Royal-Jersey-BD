@@ -43,6 +43,8 @@ export const productsTable = pgTable("products", {
   discountPercent: integer("discount_percent").notNull().default(0),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("4.5"),
   reviewCount: integer("review_count").notNull().default(0),
+  tags: text("tags").array(),
+  variantPrices: text("variant_prices"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
