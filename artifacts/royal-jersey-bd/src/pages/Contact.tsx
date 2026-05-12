@@ -16,7 +16,7 @@ export default function Contact() {
     const text = encodeURIComponent(
       `*New Message from Royal Jersey BD Website*\n\n*Name:* ${form.name}\n*Phone:* ${form.phone}\n*Email:* ${form.email}\n*Subject:* ${form.subject}\n\n*Message:*\n${form.message}`
     );
-    window.open(`https://wa.me/+8801234567890?text=${text}`, "_blank");
+    window.open(`https://wa.me/+8801867751573?text=${text}`, "_blank");
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 5000);
   };
@@ -50,7 +50,7 @@ export default function Contact() {
           >
             {/* WhatsApp CTA */}
             <a
-              href="https://wa.me/+8801234567890"
+              href="https://wa.me/+8801867751573"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-4 p-5 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 hover:bg-[#25D366]/20 transition-colors"
@@ -61,13 +61,13 @@ export default function Contact() {
               <div>
                 <p className="font-bold text-lg">WhatsApp (Fastest)</p>
                 <p className="text-muted-foreground text-sm">Tap to chat — we usually reply in minutes</p>
-                <p className="text-[#25D366] font-semibold mt-1">+880 1234-567890</p>
+                <p className="text-[#25D366] font-semibold mt-1">+8801867751573</p>
               </div>
             </a>
 
             <div className="space-y-5">
               {[
-                { icon: Phone, label: "Phone", value: "+880 1234-567890", href: "tel:+8801234567890" },
+                { icon: Phone, label: "Phone", value: "+8801867751573", href: "tel:+8801867751573" },
                 { icon: Mail, label: "Email", value: "support@royaljersey.bd", href: "mailto:support@royaljersey.bd" },
                 { icon: MapPin, label: "Address", value: "House 12, Road 5, Block A, Mirpur, Dhaka 1216" },
                 { icon: Clock, label: "Hours", value: "Sat–Thu: 9am–9pm | Friday: 2pm–9pm" },

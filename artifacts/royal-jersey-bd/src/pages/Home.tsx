@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { useGetFeaturedProducts, useGetNewArrivals, useListOffers, useGetSiteSettings, useListLeagues } from "@workspace/api-client-react";
+import { useGetFeaturedProducts, useGetNewArrivals, useListOffers, useGetSiteSettings, useListLeagues, useListProducts } from "@workspace/api-client-react";
 import type { HeroSlide } from "@workspace/api-client-react";
 import ProductCard from "@/components/products/ProductCard";
 import WorldCupBanner from "@/components/layout/WorldCupBanner";
@@ -39,6 +39,7 @@ export default function Home() {
   const { data: offers } = useListOffers();
   const { data: siteSettings } = useGetSiteSettings();
   const { data: leagues } = useListLeagues();
+  const { data: allProductsData } = useListProducts({});
 
   const [heroRef, heroApi] = useEmblaCarousel({ loop: true });
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -312,6 +313,60 @@ export default function Home() {
         </section>
       )}
 
+      {/* Best Deals — discounted products */}
+      {showSection('bestdeals') !== false && (() => {
+        const bestDeals = (allProductsData ?? []).filter(p => (p.discountPercent ?? 0) > 0).slice(0, 8);
+        if (bestDeals.length === 0) return null;
+        const sectionTitle = offers && offers.length > 0 ? offers[0].title : "Best Deals";
+        const sectionSub = offers && offers.length > 0 ? offers[0].description : "Limited-time discounts on premium jerseys.";
+        return (
+          <section className="py-16 bg-accent/5">
+            <div className="container mx-auto px-4">
+              <div className="flex items-end justify-between mb-10">
+                <div>
+                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-accent/15 text-accent text-xs font-bold uppercase tracking-wider mb-3 border border-accent/20">
+                    Limited Time Offer
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-serif font-bold mb-2">{sectionTitle}</h2>
+                  <p className="text-muted-foreground">{sectionSub}</p>
+                </div>
+                <Button variant="ghost" asChild className="hidden md:flex">
+                  <Link href="/products">View All <ChevronRight className="ml-2 w-4 h-4" /></Link>
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {bestDeals.slice(0, 4).map((product, i) => (
+                  <ProductCard key={product.id} product={product} index={i} />
+                ))}
+              </div>
+              {bestDeals.length > 4 && offers && offers.length > 1 && (
+                <div className="mt-12">
+                  <div className="flex items-end justify-between mb-8">
+                    <div>
+                      <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/15 text-primary text-xs font-bold uppercase tracking-wider mb-3 border border-primary/20">
+                        Our Recommendations
+                      </div>
+                      <h2 className="text-2xl md:text-3xl font-serif font-bold mb-1">{offers[1]?.title ?? "Our Recommendations"}</h2>
+                      <p className="text-muted-foreground text-sm">{offers[1]?.description ?? "Handpicked for you."}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {bestDeals.slice(4, 8).map((product, i) => (
+                      <ProductCard key={product.id} product={product} index={i} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="mt-8 text-center md:hidden">
+                <Button variant="outline" asChild className="w-full">
+                  <Link href="/products">View All Deals</Link>
+                </Button>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
+
       {/* Shop by League */}
       {showSection('leagues') && leagues && leagues.length > 0 && (
         <section className="py-16 bg-muted/10">
@@ -474,8 +529,8 @@ export default function Home() {
               ))}
               <div className="flex gap-6 pt-2">
                 {[
-                  { value: "5000+", label: "Customers" },
-                  { value: "64", label: "Districts" },
+                  { value: (siteSettings as any)?.customer_count || "5,000+", label: "Customers" },
+                  { value: (siteSettings as any)?.district_count || "64", label: "Districts" },
                   { value: "4.9★", label: "Rating" },
                 ].map((stat, i) => (
                   <div key={i} className="text-center">

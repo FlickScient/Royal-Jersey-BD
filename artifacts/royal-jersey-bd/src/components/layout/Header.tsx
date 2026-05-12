@@ -172,7 +172,7 @@ export default function Header() {
                   </div>
                   <div className="mt-6 text-center text-sm text-muted-foreground">
                     <p>Help & Support</p>
-                    <a href="tel:+8801234567890" className="font-bold text-foreground mt-1 block">+880 1234-567890</a>
+                    <a href="tel:+8801867751573" className="font-bold text-foreground mt-1 block">+8801867751573</a>
                   </div>
                 </div>
               </SheetContent>

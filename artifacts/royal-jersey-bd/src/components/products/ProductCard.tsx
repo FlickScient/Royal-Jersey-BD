@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Link } from "wouter";
 import { Heart, Eye, ShoppingCart, Check } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Product } from "@workspace/api-client-react";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCart } from "@/contexts/CartContext";
@@ -20,6 +20,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [showQuickView, setShowQuickView] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
+  const [cartBounce, setCartBounce] = useState(false);
+  const [heartPop, setHeartPop] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -38,6 +40,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() });
         setIsAdded(true);
+        setCartBounce(true);
+        setTimeout(() => setCartBounce(false), 600);
         setTimeout(() => setIsAdded(false), 2000);
         openCart();
       }
@@ -60,6 +64,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setHeartPop(true);
+    setTimeout(() => setHeartPop(false), 500);
     toggleWishlist(product.id);
   };
 
@@ -153,37 +159,54 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             )}
           </div>
 
-          {/* Wishlist Button */}
+          {/* Wishlist Button with pop-heart */}
           <button
             onClick={handleToggleWishlist}
             className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center text-foreground hover:text-accent transition-colors"
           >
-            <motion.div
-              animate={inWishlist ? { scale: [1, 1.3, 1] } : {}}
-              transition={{ duration: 0.3 }}
-            >
-              <Heart className={`h-5 w-5 ${inWishlist ? "fill-accent text-accent" : ""}`} />
-            </motion.div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={inWishlist ? "filled" : "empty"}
+                initial={{ scale: heartPop ? 0.5 : 1 }}
+                animate={heartPop
+                  ? { scale: [0.5, 1.5, 0.9, 1.2, 1], rotate: [0, -15, 15, -5, 0] }
+                  : { scale: 1 }
+                }
+                transition={{ duration: 0.45, type: "spring", stiffness: 400, damping: 15 }}
+              >
+                <Heart className={`h-5 w-5 transition-colors ${inWishlist ? "fill-accent text-accent" : ""}`} />
+              </motion.div>
+            </AnimatePresence>
           </button>
 
           {/* Quick Actions Overlay */}
           <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-background/90 to-transparent flex gap-2 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-10">
-            <Button
+            <motion.div
               className="flex-1"
-              variant={isAdded ? "outline" : "default"}
-              onClick={handleAddToCart}
-              disabled={!product.inStock || addToCart.isPending}
+              animate={cartBounce ? { scale: [1, 0.9, 1.15, 0.95, 1], y: [0, 2, -6, 2, 0] } : { scale: 1 }}
+              transition={{ duration: 0.5, type: "spring", stiffness: 400, damping: 15 }}
             >
-              {isAdded ? (
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-500" /> Added
-                </motion.div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <ShoppingCart className="w-4 h-4" /> Add
-                </div>
-              )}
-            </Button>
+              <Button
+                className="w-full"
+                variant={isAdded ? "outline" : "default"}
+                onClick={handleAddToCart}
+                disabled={!product.inStock || addToCart.isPending}
+              >
+                {isAdded ? (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="flex items-center gap-2"
+                  >
+                    <Check className="w-4 h-4 text-green-500" /> Added!
+                  </motion.div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <ShoppingCart className="w-4 h-4" /> Add
+                  </div>
+                )}
+              </Button>
+            </motion.div>
             <Button
               size="icon"
               variant="secondary"

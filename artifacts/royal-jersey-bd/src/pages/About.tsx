@@ -2,8 +2,13 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Shield, Truck, Users, Award, Heart, Star } from "lucide-react";
+import { useGetSiteSettings } from "@workspace/api-client-react";
 
 export default function About() {
+  const { data: siteSettings } = useGetSiteSettings();
+  const customerCount = (siteSettings as any)?.customer_count || "5,000+";
+  const districtCount = (siteSettings as any)?.district_count || "64";
+
   return (
     <div className="min-h-screen pt-20">
       {/* Breadcrumb */}
@@ -85,9 +90,9 @@ export default function About() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { value: "5,000+", label: "Happy Customers" },
+              { value: customerCount, label: "Happy Customers" },
               { value: "200+", label: "Products" },
-              { value: "64", label: "Districts Delivered" },
+              { value: districtCount, label: "Districts Delivered" },
               { value: "4.9★", label: "Average Rating" },
             ].map((stat, i) => (
               <motion.div
