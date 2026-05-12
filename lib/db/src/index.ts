@@ -54,6 +54,8 @@ export async function initializeDatabase() {
       discount_percent INTEGER NOT NULL DEFAULT 0,
       rating DECIMAL(3,2) DEFAULT '4.5',
       review_count INTEGER NOT NULL DEFAULT 0,
+      tags TEXT[],
+      variant_prices TEXT,
       created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
     );
     CREATE TABLE IF NOT EXISTS offers (
@@ -107,6 +109,8 @@ export async function initializeDatabase() {
     ALTER TABLE products ADD COLUMN IF NOT EXISTS league_id INTEGER REFERENCES leagues(id);
     ALTER TABLE products ADD COLUMN IF NOT EXISTS team_name TEXT;
     ALTER TABLE products ADD COLUMN IF NOT EXISTS discount_percent INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE products ADD COLUMN IF NOT EXISTS tags TEXT[];
+    ALTER TABLE products ADD COLUMN IF NOT EXISTS variant_prices TEXT;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS items_json TEXT NOT NULL DEFAULT '[]';
   `);
