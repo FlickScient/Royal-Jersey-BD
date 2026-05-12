@@ -93,6 +93,7 @@ router.post("/admin/products", requireAdmin, async (req, res) => {
     discountPercent: body.discountPercent ?? 0,
     tags: body.tags ?? null,
     variantPrices: body.variantPrices ?? null,
+    videoUrl: body.videoUrl ?? null,
     reviewCount: 0,
   }).returning();
 
@@ -126,6 +127,7 @@ router.put("/admin/products/:id", requireAdmin, async (req, res) => {
     discountPercent: body.discountPercent ?? 0,
     tags: body.tags ?? null,
     variantPrices: body.variantPrices ?? null,
+    videoUrl: body.videoUrl ?? null,
   }).where(eq(productsTable.id, id)).returning();
 
   if (!product) return res.status(404).json({ error: "Not found" });
@@ -431,6 +433,7 @@ function mapProduct(
     teamName: p.teamName ?? undefined,
     tags: p.tags ?? [],
     variantPrices,
+    videoUrl: p.videoUrl ?? undefined,
     createdAt: p.createdAt.toISOString(),
   };
 }
