@@ -91,6 +91,8 @@ router.post("/admin/products", requireAdmin, async (req, res) => {
     isFeatured: body.isFeatured ?? false,
     isNew: body.isNew ?? false,
     discountPercent: body.discountPercent ?? 0,
+    tags: body.tags ?? null,
+    variantPrices: body.variantPrices ?? null,
     reviewCount: 0,
   }).returning();
 
@@ -122,6 +124,8 @@ router.put("/admin/products/:id", requireAdmin, async (req, res) => {
     isFeatured: body.isFeatured ?? false,
     isNew: body.isNew ?? false,
     discountPercent: body.discountPercent ?? 0,
+    tags: body.tags ?? null,
+    variantPrices: body.variantPrices ?? null,
   }).where(eq(productsTable.id, id)).returning();
 
   if (!product) return res.status(404).json({ error: "Not found" });
@@ -397,6 +401,10 @@ function mapProduct(
   leagueName: string | null,
   leagueLogoUrl: string | null,
 ) {
+  let variantPrices: Record<string, number> | undefined;
+  if (p.variantPrices) {
+    try { variantPrices = JSON.parse(p.variantPrices); } catch {}
+  }
   return {
     id: p.id,
     name: p.name,
@@ -421,6 +429,8 @@ function mapProduct(
     leagueName: leagueName ?? undefined,
     leagueLogoUrl: leagueLogoUrl ?? undefined,
     teamName: p.teamName ?? undefined,
+    tags: p.tags ?? [],
+    variantPrices,
     createdAt: p.createdAt.toISOString(),
   };
 }
