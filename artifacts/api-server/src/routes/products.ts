@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { productsTable, categoriesTable, leaguesTable } from "@workspace/db";
-import { eq, and, ilike, gte, lte, asc, desc } from "drizzle-orm";
+import { eq, and, or, ilike, gte, lte, asc, desc, sql } from "drizzle-orm";
 import { ListProductsQueryParams } from "@workspace/api-zod";
 
 const router = Router();
@@ -12,6 +12,10 @@ function mapProduct(
   leagueName?: string | null,
   leagueLogoUrl?: string | null,
 ) {
+  let variantPrices: Record<string, number> | undefined;
+  if (p.variantPrices) {
+    try { variantPrices = JSON.parse(p.variantPrices); } catch {}
+  }
   return {
     id: p.id,
     name: p.name,
@@ -36,6 +40,8 @@ function mapProduct(
     leagueName: leagueName ?? undefined,
     leagueLogoUrl: leagueLogoUrl ?? undefined,
     teamName: p.teamName ?? undefined,
+    tags: p.tags ?? [],
+    variantPrices,
     createdAt: p.createdAt.toISOString(),
   };
 }
@@ -48,10 +54,20 @@ router.get("/products", async (req, res) => {
 
   const { categoryId, edition, search, inStock, leagueId, sort, minPrice, maxPrice } = parsed.data;
 
+  // Search across name, teamName, description, and tags for broad keyword matching
+  const searchCondition = search
+    ? or(
+        ilike(productsTable.name, `%${search}%`),
+        ilike(sql`coalesce(${productsTable.teamName}, '')`, `%${search}%`),
+        ilike(sql`coalesce(${productsTable.description}, '')`, `%${search}%`),
+        sql`${productsTable.tags}::text ilike ${'%' + search + '%'}`,
+      )
+    : undefined;
+
   const conditions = and(
     categoryId ? eq(productsTable.categoryId, categoryId) : undefined,
     edition ? eq(productsTable.edition, edition) : undefined,
-    search ? ilike(productsTable.name, `%${search}%`) : undefined,
+    searchCondition,
     inStock !== undefined ? eq(productsTable.inStock, inStock) : undefined,
     leagueId ? eq(productsTable.leagueId, leagueId) : undefined,
     minPrice !== undefined ? gte(productsTable.price, String(minPrice)) : undefined,
