@@ -7,13 +7,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import SizeGuide from "@/components/products/SizeGuide";
 import ProductCard from "@/components/products/ProductCard";
 import {
   Heart, ShoppingCart, ShieldCheck, Truck, RotateCcw,
-  Star, Check, MessageCircle, Share2, ChevronLeft, ChevronRight,
+  Star, Check, MessageCircle, Share2, ChevronLeft, ChevronRight, Pencil,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+
+const CUSTOM_NAME_FEE = 150;
+const CUSTOM_NUMBER_FEE = 100;
 
 const VARIANT_LABELS: Record<string, string> = {
   player: "Player Edition",
@@ -35,6 +39,8 @@ export default function ProductDetail() {
   const [isAdded, setIsAdded] = useState(false);
   const [showStickyAtc, setShowStickyAtc] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+  const [customName, setCustomName] = useState("");
+  const [customNumber, setCustomNumber] = useState("");
 
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { openCart } = useCart();
@@ -44,10 +50,12 @@ export default function ProductDetail() {
   const variantPrices: Record<string, number> = (product as any)?.variantPrices ?? {};
   const hasVariants = Object.keys(variantPrices).length > 0;
 
-  // Displayed price: variant price if selected, else default
-  const displayPrice = selectedVariant && variantPrices[selectedVariant]
+  // Displayed price: variant price if selected, else default, plus customization fees
+  const basePrice = selectedVariant && variantPrices[selectedVariant]
     ? variantPrices[selectedVariant]
     : product?.price ?? 0;
+  const customFee = (customName.trim() ? CUSTOM_NAME_FEE : 0) + (customNumber.trim() ? CUSTOM_NUMBER_FEE : 0);
+  const displayPrice = basePrice + customFee;
 
   // Related products — same category
   const { data: allInCategory } = useListProducts(
@@ -230,10 +238,17 @@ export default function ProductDetail() {
                 {product.stockCount != null ? (
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold border ${
                     product.stockCount === 0 ? "bg-red-500/10 text-red-500 border-red-500/20"
-                      : product.stockCount <= 5 ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+                      : product.stockCount <= 5 ? "bg-red-500/10 text-red-600 border-red-500/20 animate-pulse"
+                      : product.stockCount <= 10 ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
                       : "bg-green-500/10 text-green-600 border-green-500/20"
                   }`}>
-                    {product.stockCount === 0 ? "Out of Stock" : `${product.stockCount} in stock`}
+                    {product.stockCount === 0
+                      ? "Out of Stock"
+                      : product.stockCount <= 5
+                      ? `⚡ Only ${product.stockCount} left!`
+                      : product.stockCount <= 10
+                      ? `🔥 Limited — ${product.stockCount} units left`
+                      : `✓ In Stock`}
                   </span>
                 ) : (
                   <span className={`inline-flex items-center gap-1 text-sm font-semibold ${product.inStock ? "text-green-600" : "text-red-500"}`}>
@@ -312,6 +327,58 @@ export default function ProductDetail() {
                   </div>
                 </div>
               )}
+
+              {/* ── Custom Name & Number ─────────────────────────── */}
+              <div className="p-4 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Pencil className="w-4 h-4 text-primary" />
+                  <Label className="text-base font-semibold text-primary">Customize Your Jersey</Label>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm text-muted-foreground flex items-center justify-between">
+                      <span>Player Name</span>
+                      {customName.trim() && (
+                        <span className="text-primary font-semibold text-xs">+৳{CUSTOM_NAME_FEE}</span>
+                      )}
+                    </Label>
+                    <Input
+                      value={customName}
+                      onChange={e => setCustomName(e.target.value.toUpperCase())}
+                      placeholder="e.g. RAHMAN"
+                      maxLength={15}
+                      className="uppercase font-bold tracking-wider placeholder:normal-case placeholder:font-normal placeholder:tracking-normal"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm text-muted-foreground flex items-center justify-between">
+                      <span>Jersey Number</span>
+                      {customNumber.trim() && (
+                        <span className="text-primary font-semibold text-xs">+৳{CUSTOM_NUMBER_FEE}</span>
+                      )}
+                    </Label>
+                    <Input
+                      value={customNumber}
+                      onChange={e => setCustomNumber(e.target.value.replace(/\D/g, "").slice(0, 2))}
+                      placeholder="e.g. 10"
+                      maxLength={2}
+                      className="font-bold text-center text-xl"
+                    />
+                  </div>
+                </div>
+                {customFee > 0 ? (
+                  <div className="flex items-center justify-between text-sm bg-primary/10 rounded-lg px-3 py-2">
+                    <span className="text-muted-foreground">
+                      Customization ({[customName.trim() && "Name", customNumber.trim() && "Number"].filter(Boolean).join(" + ")})
+                    </span>
+                    <span className="font-bold text-primary">+৳{customFee}</span>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Optional · Name printing +৳{CUSTOM_NAME_FEE} · Number +৳{CUSTOM_NUMBER_FEE} · Leave blank to skip
+                  </p>
+                )}
+              </div>
 
               {/* ── Qty + ATC ─────────────────────────────────────── */}
               <div className="flex flex-col sm:flex-row gap-4">
