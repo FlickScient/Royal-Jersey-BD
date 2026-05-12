@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "wouter";
 import { Heart, Eye, ShoppingCart, Check } from "lucide-react";
 import { motion } from "framer-motion";
@@ -20,13 +20,19 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [showQuickView, setShowQuickView] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
-  
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { openCart } = useCart();
   const queryClient = useQueryClient();
-  
+
   const inWishlist = isInWishlist(product.id);
-  
+  const videoUrl = (product as any).videoUrl as string | undefined;
+
+  const stockCount = product.stockCount;
+  const isLowStock = stockCount != null && stockCount > 0 && stockCount <= 10;
+  const isCriticalStock = stockCount != null && stockCount > 0 && stockCount <= 5;
+
   const addToCart = useAddToCart({
     mutation: {
       onSuccess: () => {
@@ -42,12 +48,10 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
     if (!product.inStock) return;
-    
     addToCart.mutate({
       data: {
         productId: product.id,
         quantity: 1,
-        // If it has sizes, maybe we shouldn't quick add, or default to first size
         size: product.sizes?.[0]
       }
     });
@@ -59,6 +63,22 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     toggleWishlist(product.id);
   };
 
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (videoRef.current && videoUrl) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (videoRef.current && videoUrl) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
   return (
     <>
       <motion.div
@@ -66,25 +86,52 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: index * 0.1 }}
         className="group relative flex flex-col bg-card rounded-lg overflow-hidden border border-border/50 hover:border-primary/30 transition-all duration-300"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <Link href={`/products/${product.id}`} className="relative aspect-[3/4] overflow-hidden bg-secondary block">
+
+          {/* Static image — always rendered, fades out on hover if video exists */}
           {product.imageUrl ? (
-            <img 
-              src={product.imageUrl} 
-              alt={product.name} 
-              className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`}
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${
+                isHovered && videoUrl ? "opacity-0" : "opacity-100"
+              } ${isHovered ? "scale-110" : "scale-100"}`}
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground font-serif">
+            <div className="absolute inset-0 w-full h-full bg-muted flex items-center justify-center text-muted-foreground font-serif">
               Royal Jersey BD
             </div>
           )}
 
+          {/* Fabric shine video — plays on hover */}
+          {videoUrl && (
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              muted
+              loop
+              playsInline
+              preload="none"
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                isHovered ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          )}
+
+          {/* Fabric video indicator */}
+          {videoUrl && (
+            <div className={`absolute bottom-14 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded-full transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0"}`}>
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              Fabric Preview
+            </div>
+          )}
+
           {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2">
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
             {product.isNew && (
               <Badge className="bg-primary text-primary-foreground border-none">NEW</Badge>
             )}
@@ -94,8 +141,15 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             {!product.inStock && (
               <Badge variant="destructive" className="border-none">SOLD OUT</Badge>
             )}
-            {product.inStock && product.reviewCount && product.reviewCount < 15 && (
-              <Badge className="bg-orange-500 text-white border-none text-xs">Only {product.reviewCount < 5 ? product.reviewCount : Math.floor(Math.random() * 5) + 2} left!</Badge>
+            {product.inStock && isCriticalStock && (
+              <Badge className="bg-red-500 text-white border-none text-[10px] font-bold animate-pulse">
+                Only {stockCount} left!
+              </Badge>
+            )}
+            {product.inStock && isLowStock && !isCriticalStock && (
+              <Badge className="bg-amber-500 text-white border-none text-[10px] font-semibold">
+                Limited Stock
+              </Badge>
             )}
           </div>
 
@@ -108,14 +162,14 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               animate={inWishlist ? { scale: [1, 1.3, 1] } : {}}
               transition={{ duration: 0.3 }}
             >
-              <Heart className={`h-5 w-5 ${inWishlist ? 'fill-accent text-accent' : ''}`} />
+              <Heart className={`h-5 w-5 ${inWishlist ? "fill-accent text-accent" : ""}`} />
             </motion.div>
           </button>
 
           {/* Quick Actions Overlay */}
-          <div className={`absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-background/90 to-transparent flex gap-2 translate-y-full group-hover:translate-y-0 transition-transform duration-300`}>
-            <Button 
-              className="flex-1" 
+          <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-background/90 to-transparent flex gap-2 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-10">
+            <Button
+              className="flex-1"
               variant={isAdded ? "outline" : "default"}
               onClick={handleAddToCart}
               disabled={!product.inStock || addToCart.isPending}
@@ -130,9 +184,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 </div>
               )}
             </Button>
-            <Button 
-              size="icon" 
-              variant="secondary" 
+            <Button
+              size="icon"
+              variant="secondary"
               onClick={(e) => {
                 e.preventDefault();
                 setShowQuickView(true);
@@ -148,19 +202,28 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           <Link href={`/products/${product.id}`} className="font-medium text-base hover:text-primary transition-colors line-clamp-2 mb-2 flex-1">
             {product.name}
           </Link>
-          <div className="flex items-center gap-2 mt-auto">
+
+          {/* Low stock FOMO text under price */}
+          <div className="flex items-center gap-2 mt-auto flex-wrap">
             <span className="font-serif font-bold text-lg">৳{product.price.toFixed(2)}</span>
             {product.originalPrice && product.originalPrice > product.price && (
               <span className="text-sm text-muted-foreground line-through">৳{product.originalPrice.toFixed(2)}</span>
             )}
           </div>
+          {product.inStock && isLowStock && (
+            <p className="text-[11px] mt-1 font-medium text-amber-600 dark:text-amber-400">
+              {isCriticalStock
+                ? `⚡ Only ${stockCount} left — order soon!`
+                : `🔥 Low stock — only ${stockCount} units remaining`}
+            </p>
+          )}
         </div>
       </motion.div>
 
-      <QuickViewModal 
-        product={product} 
-        isOpen={showQuickView} 
-        onClose={() => setShowQuickView(false)} 
+      <QuickViewModal
+        product={product}
+        isOpen={showQuickView}
+        onClose={() => setShowQuickView(false)}
       />
     </>
   );
