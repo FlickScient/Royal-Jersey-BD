@@ -42,6 +42,7 @@ function mapProduct(
     teamName: p.teamName ?? undefined,
     tags: p.tags ?? [],
     variantPrices,
+    videoUrl: p.videoUrl ?? undefined,
     createdAt: p.createdAt.toISOString(),
   };
 }
