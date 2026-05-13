@@ -221,11 +221,13 @@ export default function ProductDetail() {
             <div className="mb-6">
               <div className="text-sm font-bold text-primary tracking-widest uppercase mb-3 flex items-center justify-between">
                 <span>{product.categoryName}{product.teamName ? ` · ${product.teamName}` : ""}</span>
-                <div className="flex items-center gap-1 text-yellow-500">
-                  <Star className="w-4 h-4 fill-current" />
-                  <span className="text-foreground">{product.rating || "4.9"}</span>
-                  <span className="text-muted-foreground text-xs font-normal">({product.reviewCount || "120"})</span>
-                </div>
+                {product.reviewCount > 0 && (
+                  <div className="flex items-center gap-1 text-yellow-500">
+                    <Star className="w-4 h-4 fill-current" />
+                    <span className="text-foreground">{product.rating}</span>
+                    <span className="text-muted-foreground text-xs font-normal">({product.reviewCount} reviews)</span>
+                  </div>
+                )}
               </div>
               <h1 className="text-3xl md:text-5xl font-serif font-bold leading-tight mb-4">{product.name}</h1>
 

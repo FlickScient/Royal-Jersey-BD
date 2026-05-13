@@ -10,7 +10,7 @@ import {
   siteSettingsTable,
   siteVisitsTable,
 } from "@workspace/db";
-import { eq, count, gte } from "drizzle-orm";
+import { eq, count, gte, sql as sqlTemplate } from "drizzle-orm";
 
 const router = Router();
 
@@ -405,16 +405,29 @@ router.get("/admin/site-stats", requireAdmin, async (_req, res) => {
   today.setHours(0, 0, 0, 0);
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const [total, todayVisits, weekVisits] = await Promise.all([
+  const [total, todayVisits, weekVisits, dailyRows] = await Promise.all([
     db.select({ count: count() }).from(siteVisitsTable),
     db.select({ count: count() }).from(siteVisitsTable).where(gte(siteVisitsTable.createdAt, today)),
     db.select({ count: count() }).from(siteVisitsTable).where(gte(siteVisitsTable.createdAt, weekAgo)),
+    db.execute(sqlTemplate`
+      SELECT
+        TO_CHAR(created_at, 'YYYY-MM-DD') AS date,
+        COUNT(*)::int AS count
+      FROM site_visits
+      WHERE created_at >= NOW() - INTERVAL '7 days'
+      GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD')
+      ORDER BY date ASC
+    `),
   ]);
 
   return res.json({
     total: Number(total[0]?.count ?? 0),
     today: Number(todayVisits[0]?.count ?? 0),
     week: Number(weekVisits[0]?.count ?? 0),
+    daily: (dailyRows as { date: string; count: number }[]).map(r => ({
+      date: r.date,
+      count: Number(r.count),
+    })),
   });
 });
 

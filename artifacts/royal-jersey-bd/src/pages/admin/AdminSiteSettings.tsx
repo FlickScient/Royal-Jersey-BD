@@ -69,7 +69,6 @@ export default function AdminSiteSettings() {
   const [offerSliderCtaText, setOfferSliderCtaText] = useState("Shop Now");
   const [offerSliderCtaLink, setOfferSliderCtaLink] = useState("/products");
   const [offerSliderImages, setOfferSliderImages] = useState<string[]>([]);
-  const [newSliderImageUrl, setNewSliderImageUrl] = useState("");
 
   useEffect(() => {
     if (!settings) return;
@@ -585,56 +584,36 @@ export default function AdminSiteSettings() {
               {/* Image list */}
               <div className="space-y-3">
                 <Label className="text-gray-300">Slider Images ({offerSliderImages.length}/10)</Label>
+                <p className="text-xs text-gray-500">Upload photos from your gallery — JPG, PNG, WebP up to 10MB each.</p>
                 {offerSliderImages.map((url, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 border border-white/10 rounded-lg bg-background/20">
-                    {url && (
-                      <img src={url} alt="" className="w-12 h-20 object-cover rounded-md shrink-0 border border-white/10" />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500 mb-1.5">Image {i + 1}</p>
-                      <Input
-                        value={url}
-                        onChange={e => setOfferSliderImages(prev => prev.map((u, idx) => idx === i ? e.target.value : u))}
-                        className="bg-background border-white/10 text-white text-xs"
-                        placeholder="https://..."
-                      />
+                  <div key={i} className="p-3 border border-white/10 rounded-lg bg-background/20 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500">Image {i + 1}</p>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-400 hover:bg-red-500/10 h-7 w-7"
+                        onClick={() => setOfferSliderImages(prev => prev.filter((_, idx) => idx !== i))}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-red-400 hover:bg-red-500/10 h-8 w-8 shrink-0"
-                      onClick={() => setOfferSliderImages(prev => prev.filter((_, idx) => idx !== i))}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <ImageUploadWidget
+                      value={url}
+                      onChange={newUrl => setOfferSliderImages(prev => prev.map((u, idx) => idx === i ? newUrl : u))}
+                      height="h-32"
+                    />
                   </div>
                 ))}
                 {offerSliderImages.length < 10 && (
-                  <div className="flex gap-2">
-                    <Input
-                      value={newSliderImageUrl}
-                      onChange={e => setNewSliderImageUrl(e.target.value)}
-                      className="bg-background border-white/10 text-white"
-                      placeholder="Paste image URL and click Add"
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' && newSliderImageUrl.trim()) {
-                          setOfferSliderImages(prev => [...prev, newSliderImageUrl.trim()]);
-                          setNewSliderImageUrl("");
-                        }
-                      }}
+                  <div className="p-3 border border-dashed border-white/20 rounded-lg bg-background/10">
+                    <p className="text-xs text-gray-500 mb-2">Add New Photo</p>
+                    <ImageUploadWidget
+                      key={offerSliderImages.length}
+                      value=""
+                      onChange={url => { if (url) setOfferSliderImages(prev => [...prev, url]); }}
+                      height="h-24"
                     />
-                    <Button
-                      variant="outline"
-                      className="border-white/20 text-gray-300 hover:border-primary/50 hover:text-white shrink-0"
-                      onClick={() => {
-                        if (newSliderImageUrl.trim()) {
-                          setOfferSliderImages(prev => [...prev, newSliderImageUrl.trim()]);
-                          setNewSliderImageUrl("");
-                        }
-                      }}
-                    >
-                      <Plus className="w-4 h-4 mr-1" /> Add
-                    </Button>
                   </div>
                 )}
               </div>

@@ -9,7 +9,7 @@ export default function AdminDashboard() {
   const { data: products } = useAdminListProducts();
   const { data: offers } = useAdminListOffers();
   const { data: orders } = useAdminListOrders();
-  const [siteStats, setSiteStats] = useState<{ total: number; today: number; week: number } | null>(null);
+  const [siteStats, setSiteStats] = useState<{ total: number; today: number; week: number; daily: { date: string; count: number }[] } | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/site-stats", { credentials: "include" })
@@ -44,6 +44,36 @@ export default function AdminDashboard() {
           </Card>
         ))}
       </div>
+
+      {siteStats?.daily && siteStats.daily.length > 0 && (
+        <Card className="bg-[#111] border-border/10">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base text-white">Page Visits — Last 7 Days</CardTitle>
+            <p className="text-xs text-muted-foreground">Total: {siteStats.total.toLocaleString()} all-time</p>
+          </CardHeader>
+          <CardContent className="pt-2">
+            <div className="flex items-end gap-2 h-32 px-2">
+              {siteStats.daily.map((d, i) => {
+                const maxCount = Math.max(...siteStats.daily.map(x => x.count), 1);
+                const heightPct = maxCount > 0 ? (d.count / maxCount) * 100 : 0;
+                const label = new Date(d.date + "T12:00:00Z").toLocaleDateString("en", { weekday: "short" });
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1 group">
+                    <span className="text-[10px] text-muted-foreground group-hover:text-white transition-colors">
+                      {d.count}
+                    </span>
+                    <div
+                      className="w-full rounded-t bg-[#c9a84c]/50 group-hover:bg-[#c9a84c] transition-all duration-200"
+                      style={{ height: `${heightPct}%`, minHeight: d.count > 0 ? "4px" : "1px" }}
+                    />
+                    <span className="text-[9px] text-muted-foreground leading-none">{label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="bg-[#111] border-border/10">
         <CardHeader>
