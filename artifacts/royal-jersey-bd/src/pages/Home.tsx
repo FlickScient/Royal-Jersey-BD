@@ -5,6 +5,7 @@ import { useGetFeaturedProducts, useGetNewArrivals, useListOffers, useGetSiteSet
 import type { HeroSlide } from "@workspace/api-client-react";
 import ProductCard from "@/components/products/ProductCard";
 import WorldCupBanner from "@/components/layout/WorldCupBanner";
+import OfferSlider from "@/components/layout/OfferSlider";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, ArrowRight, Shield, Truck, CreditCard, Star, Users, Award, Package, Facebook, Instagram, MessageCircle, Trophy } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
@@ -59,6 +60,14 @@ export default function Home() {
       if (Array.isArray(parsed) && parsed.length > 0) heroSlides = parsed;
     }
   } catch { /* use defaults */ }
+
+  const offerSliderEnabled = siteSettings?.offer_slider_enabled !== "false";
+  const offerSliderTitle = siteSettings?.offer_slider_title || "SHOP EVERY LEAGUE";
+  const offerSliderSubtext = siteSettings?.offer_slider_subtext || "PREMIUM JERSEYS. FAST DELIVERY.";
+  const offerSliderCtaText = siteSettings?.offer_slider_cta_text || "Shop Now";
+  const offerSliderCtaLink = siteSettings?.offer_slider_cta_link || "/products";
+  let offerSliderImages: string[] = [];
+  try { offerSliderImages = JSON.parse(siteSettings?.offer_slider_images || "[]"); } catch { /* empty */ }
 
   const whatsappNumber = siteSettings?.whatsapp_number || "+8801234567890";
   const phoneNumber = siteSettings?.phone_number || "+880 1234-567890";
@@ -173,6 +182,17 @@ export default function Home() {
 
       {/* World Cup 2026 Exclusive Banner */}
       {showSection('worldcup') && <WorldCupBanner />}
+
+      {/* Offer Slider — 3D phone-card carousel */}
+      {offerSliderEnabled && offerSliderImages.length > 0 && (
+        <OfferSlider
+          title={offerSliderTitle}
+          subtext={offerSliderSubtext}
+          ctaText={offerSliderCtaText}
+          ctaLink={offerSliderCtaLink}
+          images={offerSliderImages}
+        />
+      )}
 
       {/* Editions Grid */}
       {showSection('editions') && (

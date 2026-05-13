@@ -101,6 +101,12 @@ export async function initializeDatabase() {
       value TEXT NOT NULL,
       updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
     );
+    CREATE TABLE IF NOT EXISTS site_visits (
+      id SERIAL PRIMARY KEY,
+      path TEXT NOT NULL,
+      session_id TEXT,
+      created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    );
   `);
 
   await pool.query(`

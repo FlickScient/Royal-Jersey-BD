@@ -1,13 +1,22 @@
+import { useState, useEffect } from "react";
 import { useAdminListOrders, useAdminListProducts, useAdminListOffers } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Package, Tag, ShoppingCart, DollarSign } from "lucide-react";
+import { Package, Tag, ShoppingCart, DollarSign, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function AdminDashboard() {
   const { data: products } = useAdminListProducts();
   const { data: offers } = useAdminListOffers();
   const { data: orders } = useAdminListOrders();
+  const [siteStats, setSiteStats] = useState<{ total: number; today: number; week: number } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/site-stats", { credentials: "include" })
+      .then(r => r.json())
+      .then(setSiteStats)
+      .catch(() => {});
+  }, []);
 
   const totalRevenue = orders?.reduce((sum, order) => sum + order.total, 0) || 0;
 
@@ -16,11 +25,13 @@ export default function AdminDashboard() {
     { title: "Active Offers", value: offers?.length || 0, icon: Tag, color: "text-green-500" },
     { title: "Total Orders", value: orders?.length || 0, icon: ShoppingCart, color: "text-purple-500" },
     { title: "Revenue", value: `৳${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-yellow-500" },
+    { title: "Visits Today", value: siteStats?.today ?? "—", icon: Eye, color: "text-orange-400" },
+    { title: "Visits This Week", value: siteStats?.week ?? "—", icon: Eye, color: "text-teal-400" },
   ];
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((stat, i) => (
           <Card key={i} className="bg-[#111] border-border/10">
             <CardHeader className="flex flex-row items-center justify-between pb-2">

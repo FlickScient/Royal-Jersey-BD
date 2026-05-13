@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2, Save, Phone, Globe, ImageIcon, FileText, HelpCircle, LayoutTemplate, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Trash2, Save, Phone, Globe, ImageIcon, FileText, HelpCircle, LayoutTemplate, ArrowUp, ArrowDown, Layers } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getAdminGetSiteSettingsQueryKey, getGetSiteSettingsQueryKey } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
@@ -63,6 +63,14 @@ export default function AdminSiteSettings() {
     Object.fromEntries(SECTIONS.map(s => [s.key, true]))
   );
 
+  const [offerSliderEnabled, setOfferSliderEnabled] = useState(true);
+  const [offerSliderTitle, setOfferSliderTitle] = useState("SHOP EVERY LEAGUE");
+  const [offerSliderSubtext, setOfferSliderSubtext] = useState("PREMIUM JERSEYS. FAST DELIVERY.");
+  const [offerSliderCtaText, setOfferSliderCtaText] = useState("Shop Now");
+  const [offerSliderCtaLink, setOfferSliderCtaLink] = useState("/products");
+  const [offerSliderImages, setOfferSliderImages] = useState<string[]>([]);
+  const [newSliderImageUrl, setNewSliderImageUrl] = useState("");
+
   useEffect(() => {
     if (!settings) return;
     setForm({
@@ -82,6 +90,12 @@ export default function AdminSiteSettings() {
       const vis = JSON.parse(settings.section_visibility || "{}");
       setSectionVisibility(prev => ({ ...prev, ...vis }));
     } catch { /* use defaults */ }
+    setOfferSliderEnabled(settings.offer_slider_enabled !== "false");
+    setOfferSliderTitle(settings.offer_slider_title || "SHOP EVERY LEAGUE");
+    setOfferSliderSubtext(settings.offer_slider_subtext || "PREMIUM JERSEYS. FAST DELIVERY.");
+    setOfferSliderCtaText(settings.offer_slider_cta_text || "Shop Now");
+    setOfferSliderCtaLink(settings.offer_slider_cta_link || "/products");
+    try { setOfferSliderImages(JSON.parse(settings.offer_slider_images || "[]")); } catch { setOfferSliderImages([]); }
     setEditionImages({
       edition_player_image: settings.edition_player_image || "",
       edition_fan_image: settings.edition_fan_image || "",
@@ -176,6 +190,9 @@ export default function AdminSiteSettings() {
           </TabsTrigger>
           <TabsTrigger value="faq" className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-white/10">
             <HelpCircle className="w-3 h-3 mr-1.5" />FAQ
+          </TabsTrigger>
+          <TabsTrigger value="offerslider" className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-white/10">
+            <Layers className="w-3 h-3 mr-1.5" />Offer Slider
           </TabsTrigger>
         </TabsList>
 
@@ -493,6 +510,148 @@ export default function AdminSiteSettings() {
               <div className="flex justify-end pt-2">
                 <Button onClick={() => handleSave({ faq_items: JSON.stringify(faqItems) })} disabled={updateSettings.isPending}>
                   <Save className="w-4 h-4 mr-2" />{updateSettings.isPending ? "Saving..." : "Save FAQ"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        {/* Offer Slider */}
+        <TabsContent value="offerslider" className="mt-6">
+          <Card className="bg-[#111] border-white/10">
+            <CardHeader>
+              <CardTitle className="text-white">Offer Slider</CardTitle>
+              <CardDescription className="text-gray-400">
+                3D phone-card carousel on the homepage. Add jersey photos that auto-cycle every 2.5 seconds.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Enable toggle */}
+              <div className="flex items-center justify-between p-4 rounded-lg border border-white/10 bg-background/20">
+                <div>
+                  <p className="text-sm font-semibold text-white">Show Offer Slider</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Toggle the entire section on or off</p>
+                </div>
+                <button
+                  onClick={() => setOfferSliderEnabled(prev => !prev)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none ${offerSliderEnabled ? "bg-primary" : "bg-white/10"}`}
+                  role="switch"
+                  aria-checked={offerSliderEnabled}
+                >
+                  <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${offerSliderEnabled ? "translate-x-5" : "translate-x-0"}`} />
+                </button>
+              </div>
+
+              {/* Text fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-300">Eyebrow Label</Label>
+                  <Input
+                    value={offerSliderTitle}
+                    onChange={e => setOfferSliderTitle(e.target.value)}
+                    className="bg-background border-white/10 text-white"
+                    placeholder="SHOP EVERY LEAGUE"
+                  />
+                  <p className="text-xs text-gray-500">Small all-caps label shown above the headline.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-300">Button Text</Label>
+                  <Input
+                    value={offerSliderCtaText}
+                    onChange={e => setOfferSliderCtaText(e.target.value)}
+                    className="bg-background border-white/10 text-white"
+                    placeholder="Shop Now"
+                  />
+                </div>
+                <div className="space-y-2 col-span-full">
+                  <Label className="text-gray-300">Headline</Label>
+                  <Input
+                    value={offerSliderSubtext}
+                    onChange={e => setOfferSliderSubtext(e.target.value)}
+                    className="bg-background border-white/10 text-white"
+                    placeholder="PREMIUM JERSEYS. FAST DELIVERY."
+                  />
+                </div>
+                <div className="space-y-2 col-span-full">
+                  <Label className="text-gray-300">Button Link</Label>
+                  <Input
+                    value={offerSliderCtaLink}
+                    onChange={e => setOfferSliderCtaLink(e.target.value)}
+                    className="bg-background border-white/10 text-white"
+                    placeholder="/products"
+                  />
+                </div>
+              </div>
+
+              {/* Image list */}
+              <div className="space-y-3">
+                <Label className="text-gray-300">Slider Images ({offerSliderImages.length}/10)</Label>
+                {offerSliderImages.map((url, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 border border-white/10 rounded-lg bg-background/20">
+                    {url && (
+                      <img src={url} alt="" className="w-12 h-20 object-cover rounded-md shrink-0 border border-white/10" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-500 mb-1.5">Image {i + 1}</p>
+                      <Input
+                        value={url}
+                        onChange={e => setOfferSliderImages(prev => prev.map((u, idx) => idx === i ? e.target.value : u))}
+                        className="bg-background border-white/10 text-white text-xs"
+                        placeholder="https://..."
+                      />
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-red-400 hover:bg-red-500/10 h-8 w-8 shrink-0"
+                      onClick={() => setOfferSliderImages(prev => prev.filter((_, idx) => idx !== i))}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                {offerSliderImages.length < 10 && (
+                  <div className="flex gap-2">
+                    <Input
+                      value={newSliderImageUrl}
+                      onChange={e => setNewSliderImageUrl(e.target.value)}
+                      className="bg-background border-white/10 text-white"
+                      placeholder="Paste image URL and click Add"
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && newSliderImageUrl.trim()) {
+                          setOfferSliderImages(prev => [...prev, newSliderImageUrl.trim()]);
+                          setNewSliderImageUrl("");
+                        }
+                      }}
+                    />
+                    <Button
+                      variant="outline"
+                      className="border-white/20 text-gray-300 hover:border-primary/50 hover:text-white shrink-0"
+                      onClick={() => {
+                        if (newSliderImageUrl.trim()) {
+                          setOfferSliderImages(prev => [...prev, newSliderImageUrl.trim()]);
+                          setNewSliderImageUrl("");
+                        }
+                      }}
+                    >
+                      <Plus className="w-4 h-4 mr-1" /> Add
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button
+                  onClick={() => handleSave({
+                    offer_slider_enabled: String(offerSliderEnabled),
+                    offer_slider_title: offerSliderTitle,
+                    offer_slider_subtext: offerSliderSubtext,
+                    offer_slider_cta_text: offerSliderCtaText,
+                    offer_slider_cta_link: offerSliderCtaLink,
+                    offer_slider_images: JSON.stringify(offerSliderImages),
+                  })}
+                  disabled={updateSettings.isPending}
+                >
+                  <Save className="w-4 h-4 mr-2" />{updateSettings.isPending ? "Saving..." : "Save Offer Slider"}
                 </Button>
               </div>
             </CardContent>

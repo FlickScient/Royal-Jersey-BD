@@ -116,6 +116,25 @@ const clerkAppearance = {
   },
 };
 
+function VisitTracker() {
+  const [location] = useLocation();
+  useEffect(() => {
+    const key = `visit_tracked_${location}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    fetch("/api/track-visit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: location, sessionId: sessionStorage.getItem("_sid") || (() => {
+        const id = Math.random().toString(36).slice(2);
+        sessionStorage.setItem("_sid", id);
+        return id;
+      })() }),
+    }).catch(() => {});
+  }, [location]);
+  return null;
+}
+
 function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
   const qc = useQueryClient();
@@ -137,6 +156,8 @@ function ClerkQueryClientCacheInvalidator() {
 
 function Router() {
   return (
+    <>
+    <VisitTracker />
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/products" component={Products} />
@@ -189,6 +210,7 @@ function Router() {
       </Route>
       <Route component={NotFound} />
     </Switch>
+    </>
   );
 }
 

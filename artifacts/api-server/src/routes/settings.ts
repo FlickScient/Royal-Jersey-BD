@@ -34,6 +34,12 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   fabric_image_2: "https://images.unsplash.com/photo-1616124619460-ff4ed8f4683c?q=80&w=1998&auto=format&fit=crop",
   fabric_image_3: "https://images.unsplash.com/photo-1608248593842-b054238e4a9e?q=80&w=1974&auto=format&fit=crop",
   fabric_image_4: "https://images.unsplash.com/photo-1544413660-299165566b1d?q=80&w=1974&auto=format&fit=crop",
+  offer_slider_enabled: "true",
+  offer_slider_title: "SHOP EVERY LEAGUE",
+  offer_slider_subtext: "PREMIUM JERSEYS. FAST DELIVERY.",
+  offer_slider_cta_text: "Shop Now",
+  offer_slider_cta_link: "/products",
+  offer_slider_images: JSON.stringify([]),
 };
 
 router.get("/site-settings", async (_req, res) => {

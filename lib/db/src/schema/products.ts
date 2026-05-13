@@ -96,3 +96,10 @@ export const wishlistItemsTable = pgTable("wishlist_items", {
   productId: integer("product_id").notNull().references(() => productsTable.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const siteVisitsTable = pgTable("site_visits", {
+  id: serial("id").primaryKey(),
+  path: text("path").notNull(),
+  sessionId: text("session_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

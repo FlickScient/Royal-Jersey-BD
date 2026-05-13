@@ -8,8 +8,9 @@ import {
   ordersTable,
   leaguesTable,
   siteSettingsTable,
+  siteVisitsTable,
 } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, count, gte } from "drizzle-orm";
 
 const router = Router();
 
@@ -396,6 +397,26 @@ router.delete("/admin/leagues/:id", requireAdmin, async (req, res) => {
 });
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+// ─── Site Stats ──────────────────────────────────────────────────────────────
+
+router.get("/admin/site-stats", requireAdmin, async (_req, res) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+  const [total, todayVisits, weekVisits] = await Promise.all([
+    db.select({ count: count() }).from(siteVisitsTable),
+    db.select({ count: count() }).from(siteVisitsTable).where(gte(siteVisitsTable.createdAt, today)),
+    db.select({ count: count() }).from(siteVisitsTable).where(gte(siteVisitsTable.createdAt, weekAgo)),
+  ]);
+
+  return res.json({
+    total: Number(total[0]?.count ?? 0),
+    today: Number(todayVisits[0]?.count ?? 0),
+    week: Number(weekVisits[0]?.count ?? 0),
+  });
+});
 
 function mapProduct(
   p: typeof productsTable.$inferSelect,
