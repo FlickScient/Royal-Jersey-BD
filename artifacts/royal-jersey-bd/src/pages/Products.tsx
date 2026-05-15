@@ -51,7 +51,16 @@ export default function Products() {
 
   const { data: categories } = useListCategories();
   const { data: leagues } = useListLeagues();
-
+useEffect(() => {
+  if (categories && (window as any).__pendingCatSlug) {
+    const match = categories.find(
+      (c: any) => c.slug === (window as any).__pendingCatSlug
+    );
+    if (match) setSelectedCategory(match.id);
+    (window as any).__pendingCatSlug = null;
+  }
+}, [categories]);
+  
   const { data: products, isLoading } = useListProducts({
     categoryId: selectedCategory,
     edition: selectedEdition as any,
