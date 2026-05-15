@@ -30,18 +30,24 @@ export default function Products() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchInput, setSearchInput] = useState<string>("");
 
-  // Read URL params once on mount (e.g. from banner clicks)
   useEffect(() => {
-    const params = new URLSearchParams(rawSearch);
-    const ed = params.get("edition");
-    const catId = params.get("categoryId");
-    const lgId = params.get("leagueId");
-    const q = params.get("search");
-    if (ed) setSelectedEdition(ed);
-    if (catId) setSelectedCategory(Number(catId));
-    if (lgId) setSelectedLeague(Number(lgId));
-    if (q) { setSearchQuery(q); setSearchInput(q); }
-  }, []);
+  const params = new URLSearchParams(rawSearch);
+  const ed = params.get("edition");
+  const catId = params.get("categoryId");
+  const catSlug = params.get("category");
+  const lgId = params.get("leagueId");
+  const q = params.get("search");
+  const collection = params.get("collection");
+  if (ed) setSelectedEdition(ed);
+  if (catId) setSelectedCategory(Number(catId));
+  if (lgId) setSelectedLeague(Number(lgId));
+  if (q) { setSearchQuery(q); setSearchInput(q); }
+  if (collection === "new") setSelectedEdition("new");
+  if (catSlug && catSlug !== "") {
+    // Will be resolved after categories load
+    (window as any).__pendingCatSlug = catSlug;
+  }
+}, []);
 
   const { data: categories } = useListCategories();
   const { data: leagues } = useListLeagues();
