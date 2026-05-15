@@ -37,13 +37,14 @@ export default function Header() {
   const itemCount = cart?.itemCount || 0;
 
   const navLinks = [
-    { name: "Jerseys", path: "/jerseys" },
-    { name: "T-Shirts", path: "/products?category=tshirts" },
-    { name: "Tracksuits", path: "/products?category=tracksuits" },
-    { name: "Balls", path: "/products?category=balls" },
-    { name: "New Arrivals", path: "/products?collection=new" },
-    { name: "Offers", path: "/products?collection=offers" },
-  ];
+  { name: "Jerseys", path: "/products?category=jerseys" },
+  { name: "T-Shirts", path: "/products?category=tshirts" },
+  { name: "Tracksuits", path: "/products?category=tracksuits" },
+  { name: "Balls", path: "/products?category=balls" },
+  { name: "Shorts", path: "/products?category=shorts" },
+  { name: "New Arrivals", path: "/products?collection=new" },
+  { name: "Offers", path: "/products?collection=offers" },
+];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
