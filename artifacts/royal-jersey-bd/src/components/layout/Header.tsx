@@ -35,13 +35,10 @@ export default function Header() {
   }, [searchOpen]);
 
   const itemCount = cart?.itemCount || 0;
-
-  const navLinks = [
-  { name: "Jerseys", path: "/products?category=jerseys" },
-  { name: "T-Shirts", path: "/products?category=tshirts" },
-  { name: "Tracksuits", path: "/products?category=tracksuits" },
-  { name: "Balls", path: "/products?category=balls" },
-  { name: "Shorts", path: "/products?category=shorts" },
+const navLinks = [
+  { name: "World Cup Kits", path: "/products?categoryId=1" },
+  { name: "Club Section", path: "/products?categoryId=3" },
+  { name: "Shorts", path: "/products?categoryId=4" },
   { name: "New Arrivals", path: "/products?collection=new" },
   { name: "Offers", path: "/products?collection=offers" },
 ];
