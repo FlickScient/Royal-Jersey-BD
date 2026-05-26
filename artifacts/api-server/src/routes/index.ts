@@ -11,6 +11,7 @@ import adminRouter from "./admin";
 import uploadRouter from "./upload";
 import settingsRouter from "./settings";
 import visitsRouter from "./visits";
+import migrateRouter from "./migrate";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(adminRouter);
 router.use(uploadRouter);
 router.use(settingsRouter);
 router.use(visitsRouter);
+router.use(migrateRouter);
 
 export default router;

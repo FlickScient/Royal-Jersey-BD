@@ -41,6 +41,7 @@ import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminCategories from "@/pages/admin/AdminCategories";
 import AdminLeagues from "@/pages/admin/AdminLeagues";
 import AdminSiteSettings from "@/pages/admin/AdminSiteSettings";
+import AdminMigrate from "@/pages/admin/AdminMigrate";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -206,6 +207,11 @@ function Router() {
       <Route path="/admin/settings">
         <AdminLayout>
           <AdminSiteSettings />
+        </AdminLayout>
+      </Route>
+      <Route path="/admin/migrate">
+        <AdminLayout>
+          <AdminMigrate />
         </AdminLayout>
       </Route>
       <Route component={NotFound} />

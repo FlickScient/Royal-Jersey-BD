@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Package, Tag, ShoppingCart, LogOut, Copy, CheckCircle, Shield, ExternalLink, FolderOpen, Settings, Menu, X, Trophy } from "lucide-react";
+import { LayoutDashboard, Package, Tag, ShoppingCart, LogOut, Copy, CheckCircle, Shield, ExternalLink, FolderOpen, Settings, Menu, X, Trophy, DatabaseZap } from "lucide-react";
 import { useAdminMe } from "@/hooks/useAdminMe";
 import { useClerk } from "@clerk/react";
 import { Button } from "@/components/ui/button";
@@ -115,6 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Offers", href: "/admin/offers", icon: Tag },
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { name: "Site Settings", href: "/admin/settings", icon: Settings },
+    { name: "DB Migration", href: "/admin/migrate", icon: DatabaseZap },
   ];
 
   const SidebarContent = () => (
