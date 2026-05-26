@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "pnpm install && pnpm --filter @workspace/royal-jersey-bd run build",
+  "buildCommand": "pnpm install && pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/royal-jersey-bd run build",
   "outputDirectory": "artifacts/royal-jersey-bd/dist/public",
   "cleanUrls": true,
   "rewrites": [
