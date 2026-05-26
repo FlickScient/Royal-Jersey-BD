@@ -1,11 +1,9 @@
 {
   "version": 2,
+  "buildCommand": "(cd ../../ && pnpm --filter @workspace/api-server run build) && pnpm run build",
+  "outputDirectory": "dist/public",
   "cleanUrls": true,
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
-
