@@ -4,7 +4,6 @@
   "outputDirectory": "artifacts/royal-jersey-bd/dist/public",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
