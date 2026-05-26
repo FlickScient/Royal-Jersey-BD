@@ -1,21 +1,19 @@
-# Royal Jersey BD
+# [Project name]
 
-A premium luxury sports apparel e-commerce website for Royal Jersey BD — Bangladesh's finest custom jersey brand. Features dark luxury aesthetics with gold and crimson accents, inspired by Fabrilife's UX flow but with an elevated, cinematic feel.
+_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
-- `pnpm --filter @workspace/royal-jersey-bd run dev` — run the frontend (port 22662)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string (auto-provisioned)
+- Required env: `DATABASE_URL` — Postgres connection string
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- Frontend: React + Vite + Tailwind CSS + Framer Motion
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
@@ -24,49 +22,23 @@ A premium luxury sports apparel e-commerce website for Royal Jersey BD — Bangl
 
 ## Where things live
 
-- `lib/api-spec/openapi.yaml` — API contract (source of truth)
-- `lib/api-client-react/src/generated/` — generated React Query hooks
-- `lib/api-zod/src/generated/api.ts` — generated Zod validators for server
-- `lib/db/src/schema/products.ts` — all DB tables (categories, products, offers, cart, wishlist, orders)
-- `artifacts/api-server/src/routes/` — all API route handlers
-- `artifacts/royal-jersey-bd/src/` — React frontend
+_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
 
 ## Architecture decisions
 
-- Cart and wishlist are session-based (no auth required) using `x-session-id` header
-- Orval zod config uses `mode: "single"` with `workspace` pointing to `src/generated/` subfolder to avoid barrel export name conflicts with TypeScript types
-- `lib/api-zod/src/index.ts` exports only from `./generated/api` (not types folder) to avoid duplicate name conflicts
-- All product images use Unsplash URLs as seeded data placeholders — swap with real photos via admin
+_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
 
 ## Product
 
-- Homepage with cinematic hero slider, flash sale banner, editions grid, fabric highlight section, masonry gallery
-- Jerseys page (`/jerseys`) with Club/International tab switch, league filter pill bar (Premier League, La Liga, Bundesliga, Serie A, Ligue 1, Champions League, MLS, World Cup, Copa America, Euro, Asian Cup) with league logos, price range filter, sort dropdown
-- Product listing (`/products`) with filter sidebar (category, edition, league, stock), sort (newest/price/popular), and price range filter
-- Product detail with image gallery, size guide popup, sticky add-to-cart
-- Cart side drawer with real-time item management
-- Checkout with bKash, Nagad, Rocket, Card, and Cash on Delivery payment methods
-- Wishlist with heart animations
-- Floating WhatsApp support button
-- Dark/Light mode toggle in hamburger menu
-- Clerk auth at `/sign-in` and `/sign-up` (Email + Google; Facebook not available on free tier)
-- Admin panel at `/admin` — dashboard, product CRUD, offer CRUD, orders viewer; guarded by `ADMIN_USER_IDS` env var
-
-## Admin Setup
-
-After signing up on the site, find your Clerk user ID from the Clerk dashboard or by calling `/api/admin/me` while signed in. Then set the `ADMIN_USER_IDS` environment variable (comma-separated list of Clerk user IDs) so the admin panel becomes accessible.
+_Describe the high-level user-facing capabilities of this app once they exist._
 
 ## User preferences
 
-- Deep black theme with gold (#c9a84c) and crimson (#8b0000) accents chosen for luxury sportswear feel
-- Do NOT use emojis in UI text
-- Fabrilife-inspired UX flow
+_Populate as you build — explicit user instructions worth remembering across sessions._
 
 ## Gotchas
 
-- Run `pnpm --filter @workspace/api-spec run codegen` after any OpenAPI spec change, then fix `lib/api-zod/src/index.ts` to only export from `./generated/api` (codegen may overwrite it)
-- Session ID for cart/wishlist is sent via `x-session-id` header from the frontend custom-fetch
-- Product images are Unsplash placeholders — replace with real CDN URLs in the database
+_Populate as you build — sharp edges, "always run X before Y" rules._
 
 ## Pointers
 
