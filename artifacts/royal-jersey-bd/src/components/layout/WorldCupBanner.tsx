@@ -116,7 +116,7 @@ export default function WorldCupBanner() {
               transition={{ delay: 0.3 }}
               className="flex flex-wrap gap-3 pt-2"
             >
-              <Link href="/products?collection=worldcup2026">
+              <Link href="/products?categoryId=1">
                 <button className="group inline-flex items-center gap-2 bg-gradient-to-r from-[#c9a84c] to-yellow-400 hover:from-yellow-400 hover:to-[#c9a84c] text-black font-bold px-7 py-3.5 rounded-none text-sm uppercase tracking-wider transition-all duration-300 shadow-lg shadow-[#c9a84c]/30">
                   Shop World Cup Jerseys
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
