@@ -31,6 +31,7 @@ import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import FAQ from "@/pages/FAQ";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import DataDeletion from "@/pages/DataDeletion";
 import TrackOrder from "@/pages/TrackOrder";
 
 import AdminLayout from "@/pages/admin/AdminLayout";
@@ -171,6 +172,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/faq" component={FAQ} />
       <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/data-deletion" component={DataDeletion} />
       <Route path="/track-order" component={TrackOrder} />
       <Route path="/sign-in/*?" component={SignInPage} />
       <Route path="/sign-up/*?" component={SignUpPage} />
